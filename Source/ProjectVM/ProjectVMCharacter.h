@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
@@ -43,6 +43,13 @@ class AProjectVMCharacter : public ACharacter
 	/** Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
+
+#pragma region PawnSensing Part
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Noise, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UPawnNoiseEmitterComponent> PawnNoiseEmitter;
+
+	virtual void Jump() override;
+#pragma endregion
 
 public:
 	AProjectVMCharacter();

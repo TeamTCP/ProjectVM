@@ -9,6 +9,10 @@
 
 #include "VMEnemyBase.generated.h"
 
+//#define PAWNSENSING 1
+
+
+
 UCLASS()
 class PROJECTVM_API AVMEnemyBase : public ACharacter,
 	public IVMAIEnemyBaseInterface
@@ -36,4 +40,14 @@ public:
 	virtual float GetAIAttackRange() override;
 	virtual float GetAITurnSpeed() override;
 #pragma endregion
+
+	// Pawn Sensing 붙이기
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Mesh, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UPawnSensingComponent> PawnSensing;
+	
+	UFUNCTION()
+	void OnSeePawn(APawn* Pawn);
+
+	UFUNCTION()
+	void OnHearPawn(APawn* InstigatorPawn, const FVector& Location, float Volume);
 };
