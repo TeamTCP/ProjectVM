@@ -12,6 +12,8 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 
+#include "Hero/VMHeroStatComponent.h"
+
 AVMCharacterHeroBase::AVMCharacterHeroBase()
 {
 	bUseControllerRotationPitch = false;
@@ -84,6 +86,8 @@ AVMCharacterHeroBase::AVMCharacterHeroBase()
 	{
 		LeftMouseSkillAction = LeftMouseSkillActionRef.Object;
 	}
+
+	Stat = CreateDefaultSubobject<UVMHeroStatComponent>(TEXT("Stat"));
 }
 
 void AVMCharacterHeroBase::BeginPlay()
