@@ -61,7 +61,18 @@ AProjectVMCharacter::AProjectVMCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+#pragma region PawnSensingSection
 	PawnNoiseEmitter = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("PawnNoiseEmitter"));
+#pragma endregion 
+
+#pragma region CollisionSection
+	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
+#pragma endregion 
+
+#pragma region StatSection
+	SetCurrentHP(100.0f);
+#pragma endregion 
 }
 
 void AProjectVMCharacter::BeginPlay()

@@ -4,24 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "BTTask_FindEnemyPos.generated.h"
+#include "BTTask_FindPatrolPos.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTVM_API UBTTask_FindEnemyPos : public UBTTaskNode
+class PROJECTVM_API UBTTask_FindPatrolPos : public UBTTaskNode
 {
 	GENERATED_BODY()
 
 #pragma region 특수_맴버_함수
 public:
-	UBTTask_FindEnemyPos();
+	UBTTask_FindPatrolPos();
 #pragma endregion
 
 #pragma region 엔진_제공_함수
 protected:
-	// Task 실행 시 실행되는 함수.
 	EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 #pragma endregion
 };

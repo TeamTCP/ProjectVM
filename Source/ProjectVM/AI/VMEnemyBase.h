@@ -41,13 +41,26 @@ public:
 	virtual float GetAITurnSpeed() override;
 #pragma endregion
 
-	// Pawn Sensing 붙이기
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Mesh, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UPawnSensingComponent> PawnSensing;
-	
-	UFUNCTION()
-	void OnSeePawn(APawn* Pawn);
+	//// Pawn Sensing 붙이기
+	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Mesh, Meta = (AllowPrivateAccess = "true"))
+	//TObjectPtr<class UPawnSensingComponent> PawnSensing;
+	//
+	//UFUNCTION()
+	//void OnSeePawn(APawn* Pawn);
 
-	UFUNCTION()
-	void OnHearPawn(APawn* InstigatorPawn, const FVector& Location, float Volume);
+	//UFUNCTION()
+	//void OnHearPawn(APawn* InstigatorPawn, const FVector& Location, float Volume);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Anim)
+	TObjectPtr<class UAnimMontage> NormalAttackMontage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Anim)
+	TObjectPtr<class UAnimMontage> SkillAttack1Montage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Anim)
+	TObjectPtr<class UAnimMontage> SkillAttack2Montage;
+	//TObjectPtr<class UAnimSequence> NormalAttackAnim;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Anim)
+	TObjectPtr<class UAnimMontage> DeadMontage;
 };

@@ -7,6 +7,11 @@
 #include "Perception/PawnSensingComponent.h"
 #include "Perception/AIPerceptionComponent.h"
 
+#include "Animation/AnimMontage.h"
+#include "Animation/AnimSequence.h"
+
+
+
 #pragma region 특수_맴버_함수
 
 AVMEnemyBase::AVMEnemyBase()
@@ -50,17 +55,43 @@ AVMEnemyBase::AVMEnemyBase()
 #pragma endregion
 
 	// PawnSensing
-	PawnSensing = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensing"));
+	//PawnSensing = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensing"));
 
-	PawnSensing->SetComponentTickEnabled(true);
-	PawnSensing->HearingThreshold = 2000.f;      // 들을 수 있는 기본 거리
-	PawnSensing->LOSHearingThreshold = 2000;		// 시야 내에서 들을 수 있는 거리
-	PawnSensing->bEnableSensingUpdates = true;
-	PawnSensing->bHearNoises = true;            // 소리 감지 활성화
-	PawnSensing->SensingInterval = 0.05f;  // 0.1초마다 감지
+	//PawnSensing->SetComponentTickEnabled(true);
+	//PawnSensing->HearingThreshold = 2000.f;      // 들을 수 있는 기본 거리
+	//PawnSensing->LOSHearingThreshold = 2000;		// 시야 내에서 들을 수 있는 거리
+	//PawnSensing->bEnableSensingUpdates = true;
+	//PawnSensing->bHearNoises = true;            // 소리 감지 활성화
+	//PawnSensing->SensingInterval = 0.05f;  // 0.1초마다 감지
 
-	PawnSensing->OnSeePawn.AddDynamic(this, &AVMEnemyBase::OnSeePawn);
-	PawnSensing->OnHearNoise.AddDynamic(this, &AVMEnemyBase::OnHearPawn);
+	//PawnSensing->OnSeePawn.AddDynamic(this, &AVMEnemyBase::OnSeePawn);
+	//PawnSensing->OnHearNoise.AddDynamic(this, &AVMEnemyBase::OnHearPawn);
+
+#pragma region Montage
+	ConstructorHelpers::FObjectFinder<UAnimMontage> NormalAttackMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/ArenaBattle/Animation/AM_WarriorNormalAttack.AM_WarriorNormalAttack'"));
+	if (NormalAttackMontageRef.Object)
+	{
+		NormalAttackMontage = NormalAttackMontageRef.Object;
+	}
+
+	ConstructorHelpers::FObjectFinder<UAnimMontage> SkillAttack1MontageRef(TEXT("/Script/Engine.AnimMontage'/Game/ArenaBattle/Animation/AM_WarriorSkill1.AM_WarriorSkill1'"));
+	if (SkillAttack1MontageRef.Object)
+	{
+		SkillAttack1Montage = SkillAttack1MontageRef.Object;
+	}
+
+	ConstructorHelpers::FObjectFinder<UAnimMontage> SkillAttack2MontageRef(TEXT("/Script/Engine.AnimMontage'/Game/ArenaBattle/Animation/AM_WarriorSkill2.AM_WarriorSkill2'"));
+	if (SkillAttack2MontageRef.Object)
+	{
+		SkillAttack2Montage = SkillAttack2MontageRef.Object;
+	}
+
+	ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/ArenaBattle/Animation/AM_Dead.AM_Dead'"));
+	if (DeadMontageRef.Object)
+	{
+		DeadMontage = DeadMontageRef.Object;
+	}
+#pragma endregion
 }
 
 #pragma endregion
@@ -78,7 +109,7 @@ void AVMEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	DrawDebugSphere(GetWorld(), GetActorLocation(), PawnSensing->HearingThreshold, 16, FColor::Cyan);
+	// DrawDebugSphere(GetWorld(), GetActorLocation(), PawnSensing->HearingThreshold, 16, FColor::Cyan);
 }
 
 // Called to bind functionality to input
@@ -99,7 +130,7 @@ float AVMEnemyBase::GetAIPatrolRadius()
 
 float AVMEnemyBase::GetAIDetectRange()
 {
-	return 500.0f;
+	return 1500.0f;
 }
 
 float AVMEnemyBase::GetAIAttackRange()
@@ -116,26 +147,26 @@ float AVMEnemyBase::GetAITurnSpeed()
 
 #pragma region Pawn Sensing에서 호출될 함수
 
-void AVMEnemyBase::OnSeePawn(APawn* Pawn)
-{
-	UE_LOG(LogTemp, Log, TEXT("AVMEnemyBase::OnSeePawn : %s"), *Pawn->GetName());
-}
-
-void AVMEnemyBase::OnHearPawn(APawn* InstigatorPawn, const FVector& Location, float Volume)
-{
-	UE_LOG(LogTemp, Log, TEXT("AVMEnemyBase::OnHearPawn : %s"), *InstigatorPawn->GetName());
-	if (!InstigatorPawn)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Heard noise but InstigatorPawn is null!"));
-		return;
-	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Heard noise from %s at %s, volume %.2f"),
-		*InstigatorPawn->GetName(),
-		*Location.ToString(),
-		Volume);
-
-	DrawDebugSphere(GetWorld(), Location, 100.f, 16, FColor::Blue, false, 2.0f);
-}
+//void AVMEnemyBase::OnSeePawn(APawn* Pawn)
+//{
+//	//UE_LOG(LogTemp, Log, TEXT("AVMEnemyBase::OnSeePawn : %s"), *Pawn->GetName());
+//}
+//
+//void AVMEnemyBase::OnHearPawn(APawn* InstigatorPawn, const FVector& Location, float Volume)
+//{
+//	UE_LOG(LogTemp, Log, TEXT("AVMEnemyBase::OnHearPawn : %s"), *InstigatorPawn->GetName());
+//	/*if (!InstigatorPawn)
+//	{
+//		UE_LOG(LogTemp, Warning, TEXT("Heard noise but InstigatorPawn is null!"));
+//		return;
+//	}
+//
+//	UE_LOG(LogTemp, Warning, TEXT("Heard noise from %s at %s, volume %.2f"),
+//		*InstigatorPawn->GetName(),
+//		*Location.ToString(),
+//		Volume);*/
+//
+//	DrawDebugSphere(GetWorld(), Location, 100.f, 16, FColor::Blue, false, 2.0f);
+//}
 
 #pragma endregion

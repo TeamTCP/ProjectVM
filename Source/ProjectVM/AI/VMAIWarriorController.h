@@ -3,21 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AIController.h"
-#include "VMAIController.generated.h"
+#include "AI/VMAIController.h"
+#include "VMAIWarriorController.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTVM_API AVMAIController : public AAIController
+class PROJECTVM_API AVMAIWarriorController : public AAIController
 {
 	GENERATED_BODY()
-
-#pragma region 특수_맴버_함수
+	
 public:
-	AVMAIController();
-#pragma endregion
+	AVMAIWarriorController();
 
 #pragma region 엔진_제공_함수
 protected:
@@ -31,10 +29,10 @@ protected:
 #pragma region 메시지_함수
 public:
 	// AI를 실행하는 함수.
-	virtual void RunAI();
+	void RunAI();
 
 	// AI를 중지하는 함수.
-	virtual void StopAI();
+	void StopAI();
 #pragma endregion
 
 #pragma region 맴버_변수
