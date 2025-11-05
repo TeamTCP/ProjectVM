@@ -2,19 +2,19 @@
 
 
 #include "Item/ItemFactorySubsystem.h"
-#include "Item/ItemBase.h"
+#include "Item/Equipment/VMEquipment.h"
 
-UItemBase* UItemFactorySubsystem::CreateRandomMaterialItem()
+UVMEquipoment* UItemFactorySubsystem::CreateRandomBaseEquipment()
 {
 	return nullptr;
 }
 
-UItemBase* UItemFactorySubsystem::CreateItemByID(int32 Level)
+UVMEquipoment* UItemFactorySubsystem::CreateItemByName(FString Name)
 {
 	return nullptr;
 }
 
-UItemBase* UItemFactorySubsystem::CreateItemByName(FString Name)
+UVMEquipoment* UItemFactorySubsystem::CraftEquipment()
 {
 	return nullptr;
 }
@@ -23,26 +23,18 @@ void UItemFactorySubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-	for (TSubclassOf<UItemBase> ItemClass : AllItemClasses)
+	UDataTable* EquipmentDataTable = LoadObject<UDataTable>(nullptr, TEXT("/Game/Project/Item/VMEquipmentInfo.VMEquipmentInfo"));
+	if (EquipmentDataTable == nullptr) return;
+
+	for (const FName& RowName : EquipmentDataTable->GetRowNames())
 	{
-		FName ClassName = ItemClass->GetFName();
-		
-		ItemClassByName.Add(ClassName, ItemClass);
-	}
+		FVMEquipmentInfo* EquipmentInfoPtr = EquipmentDataTable->FindRow<FVMEquipmentInfo>(RowName, TEXT(""));
+		if (EquipmentInfoPtr == nullptr) continue;
 
-	UDataTable* ItemDataTable = LoadObject<UDataTable>(nullptr, TEXT("/Game/Project/Item/VMItemInfo.VMItemInfo"));
-	if (ItemDataTable == nullptr) return;
+		AllEquipment.Add(*EquipmentInfoPtr);
+		if (EquipmentInfoPtr->ItemLevel == 1) BaseEquipment.Add(*EquipmentInfoPtr);
 
-	for (const FName& RowName : ItemDataTable->GetRowNames())
-	{
-		FVMItemInfo* ItemInfo = ItemDataTable->FindRow<FVMItemInfo>(RowName, TEXT(""));
-		if (ItemInfo == nullptr) continue;
-
-		TSubclassOf<UItemBase>* ItemClassPtr = ItemClassByName.Find(ItemInfo->ClassName);
-		if (ItemClassPtr == nullptr || *ItemClassPtr == nullptr) continue;
-
-		ItemClassByID.Add(ItemInfo->ItemID, *ItemClassPtr);
-		ItemInfoByName.Add(ItemInfo->ClassName, *ItemInfo);
-		ItemInfoByID.Add(ItemInfo->ItemID, *ItemInfo);
+		EquipmentInfoByName.Add(FName(EquipmentInfoPtr->ItemName), *EquipmentInfoPtr);
+		EquipmentInfoByID.Add(EquipmentInfoPtr->ItemID, *EquipmentInfoPtr);
 	}
 }

@@ -4,17 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
-#include "VMItemInfo.generated.h"
+#include "VMEquipmentInfo.generated.h"
 
 USTRUCT(BlueprintType)
-struct FVMItemInfo : public FTableRowBase
+struct FVMEquipmentInfo : public FTableRowBase
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	FName ClassName;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	FString ItemName;
 
@@ -47,4 +44,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	int32 LifeSteal;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	FString Ability;
 };

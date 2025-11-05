@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Item/VMItemInfo.h"
+#include "Item/Equipment/VMEquipmentInfo.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "ItemFactorySubsystem.generated.h"
 
@@ -11,7 +11,7 @@
  * 
  */
 
-class UItemBase;
+class UVMEquipoment;
 
 UCLASS()
 class PROJECTVM_API UItemFactorySubsystem : public UGameInstanceSubsystem
@@ -19,26 +19,23 @@ class PROJECTVM_API UItemFactorySubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()
 
 public:
-	UItemBase* CreateRandomMaterialItem();
-	UItemBase* CreateItemByID(int32 Level);
-	UItemBase* CreateItemByName(FString Name);
+	UVMEquipoment* CreateRandomBaseEquipment();
+	UVMEquipoment* CreateItemByName(FString Name);
+	UVMEquipoment* CraftEquipment();
 
 protected:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ItemData")
-	TArray<TSubclassOf<class UItemBase>> AllItemClasses;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Equipment")
+	TArray<FVMEquipmentInfo> AllEquipment;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ItemData")
-	TMap<FName, TSubclassOf<class UItemBase>> ItemClassByName;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Equipment")
+	TArray<FVMEquipmentInfo> BaseEquipment;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ItemData")
-	TMap<int32, TSubclassOf<class UItemBase>> ItemClassByID;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
+	TMap<FName, FVMEquipmentInfo> EquipmentInfoByName;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ItemData")
-	TMap<FName, FVMItemInfo> ItemInfoByName;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ItemData")
-	TMap<int32, FVMItemInfo> ItemInfoByID;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
+	TMap<int32, FVMEquipmentInfo> EquipmentInfoByID;
 };
