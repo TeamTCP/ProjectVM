@@ -55,4 +55,6 @@ Plugins/*/Saved/
 
 # Ignore Visual Studio cache and settings
 .vs/
-.dvc/
+.dvc/cache
+.dvc/tmp
+.dvc/plots
