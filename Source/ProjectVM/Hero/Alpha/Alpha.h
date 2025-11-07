@@ -19,4 +19,8 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<class USkeletalMeshComponent> HairMesh;
 };
