@@ -3,19 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameMode.h"
-#include "VMGameMode.generated.h"
+#include "AI/VMEnemyBase.h"
+#include "VMEnemyMinionWarrior.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTVM_API AVMGameMode : public AGameMode
+class PROJECTVM_API AVMEnemyMinionWarrior : public AVMEnemyBase
 {
 	GENERATED_BODY()
 	
 public:
-	AVMGameMode();
-	
-private:
+	AVMEnemyMinionWarrior();
+
+
+
 };

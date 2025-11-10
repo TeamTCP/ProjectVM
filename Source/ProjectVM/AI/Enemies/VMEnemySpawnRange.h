@@ -3,19 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameMode.h"
-#include "VMGameMode.generated.h"
+#include "AI/Enemies/VMEnemySpawnBase.h"
+#include "VMEnemySpawnRange.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTVM_API AVMGameMode : public AGameMode
+class PROJECTVM_API AVMEnemySpawnRange : public AVMEnemySpawnBase
 {
 	GENERATED_BODY()
 	
 public:
-	AVMGameMode();
-	
-private:
+	AVMEnemySpawnRange();
 };
