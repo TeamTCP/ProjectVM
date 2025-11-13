@@ -4,6 +4,8 @@
 #include "Animation/VMAnimNotifyState_LaserHitCheck.h"
 
 #include "Game/VMPlayer.h"
+//#include "Interface/VMStatChangeable.h"
+#include "AI/VMEnemyBase.h"
 
 void UVMAnimNotifyState_LaserHitCheck::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
 	float TotalDuration, const FAnimNotifyEventReference& EventReference)
@@ -27,7 +29,8 @@ void UVMAnimNotifyState_LaserHitCheck::NotifyTick(USkeletalMeshComponent* MeshCo
 			return;
 		}
 
-		AVMPlayer* PlayerPtr = Cast<AVMPlayer>(ActorPtr);
+		
+		AVMEnemyBase* PlayerPtr = Cast<AVMEnemyBase>(ActorPtr);
 		if (PlayerPtr == nullptr)
 		{
 			return;

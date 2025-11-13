@@ -4,10 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+
+#include "Interface/VMStatChangeable.h"
+
 #include "VMPlayer.generated.h"
 
 UCLASS()
 class PROJECTVM_API AVMPlayer : public ACharacter
+	, public IVMStatChangeable
 {
 	GENERATED_BODY()
 
@@ -165,4 +169,8 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat, meta = (AllowPrivateAccess = "true"))
 	float AttackSpeed;
+
+#pragma region IVMStatChangeable 필수 구현 함수 임시용
+	virtual void HealthPointChange(float Amount, AActor* Causer) override;
+#pragma endregion 
 };

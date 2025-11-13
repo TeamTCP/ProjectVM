@@ -413,3 +413,8 @@ void AVMPlayer::SpawnAllyActor()
 		}
 	}
 }
+
+void AVMPlayer::HealthPointChange(float Amount, AActor* Causer)
+{
+	CurrentHp -= Amount;
+}

@@ -12,6 +12,8 @@
 
 #include "Components/CapsuleComponent.h"
 
+#include "Engine/DamageEvents.h"
+
 
 
 #pragma region 특수_맴버_함수
@@ -22,7 +24,6 @@ AVMEnemyBase::AVMEnemyBase()
 
 	PrimaryActorTick.bCanEverTick = true;
 	
-
 	// 시작할 때는 메시를 안보여주도록 설정.
 	//GetMesh()->SetHiddenInGame(true);
 
@@ -95,11 +96,17 @@ AVMEnemyBase::AVMEnemyBase()
 	{
 		DeadMontage = DeadMontageRef.Object;
 	}
+
+	ConstructorHelpers::FObjectFinder<UAnimMontage> LaserAttackMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Project/Animation/VM_LaserAttack.VM_LaserAttack'"));
+	if (LaserAttackMontageRef.Object)
+	{
+		LaserAttackMontage = LaserAttackMontageRef.Object;
+	}
 #pragma endregion
 
-
 	// Stat
-	CurrentHp = 100.0f;
+	SetMaxHp(200.0f);
+	SetCurrentHp(GetMaxHp());
 }
 
 #pragma endregion
@@ -150,25 +157,20 @@ float AVMEnemyBase::GetAITurnSpeed()
 	return 2.0f;
 }
 
-float AVMEnemyBase::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+#pragma endregion
+
+#pragma region IVMStatChangeable 인터페이스 필수 구현 함수
+
+void AVMEnemyBase::HealthPointChange(float Amount, AActor* Causer)
 {
-	float ParentDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+	UE_LOG(LogTemp, Log, TEXT("AVMEnemyBase::HealthPointChange Damage:%f Causer: %s"), Amount, *Causer->GetName());
 
-	UE_LOG(LogTemp, Log, TEXT("AVMEnemyBase::TakeDamage %f %f"), ParentDamage, Damage);
+	SetCurrentHp(FMath::Clamp<float>(GetCurrentHp() - Amount, 0, GetMaxHp()));
 
-	float RecentCurrentHp = CurrentHp;
-	RecentCurrentHp = FMath::Clamp<float>(RecentCurrentHp - Damage, 0, RecentCurrentHp);
-	SetCurrentHp(RecentCurrentHp);
-
-	if (RecentCurrentHp < KINDA_SMALL_NUMBER)
+	if (GetCurrentHp() < KINDA_SMALL_NUMBER)
 	{
-		// Dead
-		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		UE_LOG(LogTemp, Log, TEXT("몬스터가 죽었습니다"));
 	}
-
-	// TODO
-
-	return Damage;
 }
 
 #pragma endregion
@@ -198,3 +200,43 @@ float AVMEnemyBase::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AC
 //}
 
 #pragma endregion
+
+
+void AVMEnemyBase::LaserAttackHitCheck()
+{
+	UE_LOG(LogTemp, Log, TEXT("LaserAttackHitCheck"));
+
+	FHitResult OutHitResult;
+	TArray<FHitResult> HitResults;
+	//TArray<FOverlapResult> OverlapResults;
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(LaserAttack), false, this);
+
+
+	const float AttackRange = 1000.0f;
+	const float AttackRadius = 50.0f;
+	const float AttackDamage = 30.0f;
+	const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
+	const FVector End = Start + GetActorForwardVector() * AttackRange;
+
+	//bool Result = GetWorld()->LineTraceMultiByChannel(OverlapResults, Start, End, ECC_GameTraceChannel1, Params);
+	bool Result = GetWorld()->SweepMultiByChannel(HitResults, Start, End, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeSphere(AttackRadius), Params);
+	if (Result || HitResults.Num())
+	{
+		for (auto HitResult : HitResults)
+		{
+			FDamageEvent DamageEvent;
+
+			IVMStatChangeable* VMStatChangeable = Cast<IVMStatChangeable>(HitResult.GetActor());
+			if (VMStatChangeable)
+			{
+				VMStatChangeable->HealthPointChange(1, this);
+				UE_LOG(LogTemp, Log, TEXT("Hited Name: %s"), *HitResult.GetActor()->GetName());
+			}
+		}
+	}
+
+	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
+	float CapsuleHalfHeight = AttackRange * 0.5f;
+	FColor Color = Result ? FColor::Green : FColor::Red;
+	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), Color, false, 5.0f);
+}

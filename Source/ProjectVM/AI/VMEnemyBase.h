@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 
 #include "Interface/VMAIEnemyBaseInterface.h"
+#include "Interface/VMStatChangeable.h"
 
 #include "VMEnemyBase.generated.h"
 
@@ -14,8 +15,9 @@
 
 
 UCLASS()
-class PROJECTVM_API AVMEnemyBase : public ACharacter,
-	public IVMAIEnemyBaseInterface
+class PROJECTVM_API AVMEnemyBase : public ACharacter
+	, public IVMAIEnemyBaseInterface
+	, public IVMStatChangeable
 {
 	GENERATED_BODY()
 
@@ -41,15 +43,7 @@ public:
 	virtual float GetAITurnSpeed() override;
 #pragma endregion
 
-	//// Pawn Sensing 붙이기
-	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Mesh, Meta = (AllowPrivateAccess = "true"))
-	//TObjectPtr<class UPawnSensingComponent> PawnSensing;
-	//
-	//UFUNCTION()
-	//void OnSeePawn(APawn* Pawn);
-
-	//UFUNCTION()
-	//void OnHearPawn(APawn* InstigatorPawn, const FVector& Location, float Volume);
+	
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Anim)
 	TObjectPtr<class UAnimMontage> NormalAttackMontage;
@@ -64,13 +58,43 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Anim)
 	TObjectPtr<class UAnimMontage> DeadMontage;
 
+#pragma region IVMStatChangeable 인터페이스 필수 구현 함수
+public:
+	virtual void HealthPointChange(float Amount, AActor* Causer) override;
+#pragma endregion
 
-	// Stat
+#pragma region 임시 공격 테스트용
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Noise, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> LaserAttackMontage;
+
+	void LaserAttackHitCheck();
+#pragma endregion
+
+#pragma region EnemyStatComponent 임시용
+public: // Stat	
 	FORCEINLINE float	GetCurrentHp()					{ return CurrentHp; }
 	FORCEINLINE void	SetCurrentHp(float InCurrentHp) { CurrentHp = InCurrentHp; }
+	FORCEINLINE float	GetMaxHp()						{ return MaxHp; }
+	FORCEINLINE void	SetMaxHp(float InMaxHp)			{ MaxHp = InMaxHp; }
 
-	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat | Member")
 	float CurrentHp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat | Member")
+	float MaxHp;
+#pragma endregion
+
+#pragma region PawnSensing
+	//// Pawn Sensing 붙이기
+	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Mesh, Meta = (AllowPrivateAccess = "true"))
+	//TObjectPtr<class UPawnSensingComponent> PawnSensing;
+	//
+	//UFUNCTION()
+	//void OnSeePawn(APawn* Pawn);
+
+	//UFUNCTION()
+	//void OnHearPawn(APawn* InstigatorPawn, const FVector& Location, float Volume);
+#pragma endregion
 };
