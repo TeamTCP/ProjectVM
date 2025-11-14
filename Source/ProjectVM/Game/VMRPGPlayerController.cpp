@@ -9,14 +9,14 @@
 AVMRPGPlayerController::AVMRPGPlayerController()
 {
 	//게임 스크린 로드
-	static ConstructorHelpers::FClassFinder<UVMGameScreen> VMGameScreenRef(TEXT("/Game/Project/UI/WBP_VMGameScreen.WBP_VMGameScreen_C"));
+	static ConstructorHelpers::FClassFinder<UVMGameScreen> VMGameScreenRef(TEXT("/Game/Project/UI/Common/WBP_VMGameScreen.WBP_VMGameScreen_C"));
 	if (VMGameScreenRef.Succeeded())
 	{
 		VMGameScreenClass = VMGameScreenRef.Class;
 	}
 
 	//대화 스크린 로드
-	static ConstructorHelpers::FClassFinder<UVMNPCDialogueScreen> VMNPCDialogueScreenRef(TEXT("/Game/Project/UI/WBP_VMNPCDialogueScreen.WBP_VMNPCDialogueScreen_C"));
+	static ConstructorHelpers::FClassFinder<UVMNPCDialogueScreen> VMNPCDialogueScreenRef(TEXT("/Game/Project/UI/Dialogue/WBP_VMNPCDialogueScreen.WBP_VMNPCDialogueScreen_C"));
 
 	if (VMNPCDialogueScreenRef.Succeeded())
 	{
@@ -24,7 +24,7 @@ AVMRPGPlayerController::AVMRPGPlayerController()
 	}
 
 	//상점 스크린 로드
-	static ConstructorHelpers::FClassFinder<UVMShopScreen> VMShopScreenRef(TEXT("/Game/Project/UI/WBP_VMShopScreen.WBP_VMShopScreen_C"));
+	static ConstructorHelpers::FClassFinder<UVMShopScreen> VMShopScreenRef(TEXT("/Game/Project/UI/Shop/WBP_VMShopScreen.WBP_VMShopScreen_C"));
 
 	if (VMShopScreenRef.Succeeded())
 	{

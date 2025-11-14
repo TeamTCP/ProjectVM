@@ -18,12 +18,12 @@ class PROJECTVM_API UVMQuestTrackerWidget : public UUserWidget, public IUserObje
 public:
 	// 블루프린트에서 바인딩
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* QuestName;
+	TObjectPtr<class UTextBlock> QuestName;
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* QuestSummary;
+	TObjectPtr<class UTextBlock> QuestSummary;
 
 	UPROPERTY(meta = (BindWidget))
-	class UCheckBox* QuestCheckBox;
+	TObjectPtr<class UCheckBox> QuestCheckBox;
 
 	//리스트뷰가 데이터를 연결할 때 마다 호출됨
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
@@ -34,5 +34,5 @@ public:
 private:
 
 	UPROPERTY()
-	class UVMQuestDataObject* QuestDataObject;
+	TObjectPtr<class UVMQuestDataObject> QuestDataObject;
 };
