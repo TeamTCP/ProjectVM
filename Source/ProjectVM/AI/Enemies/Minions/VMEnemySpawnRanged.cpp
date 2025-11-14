@@ -34,3 +34,9 @@ AVMEnemySpawnRanged::AVMEnemySpawnRanged()
 	}
 #pragma endregion
 }
+
+void AVMEnemySpawnRanged::BeginPlay()
+{
+	Super::BeginPlay();
+	SetMonsterType(EMonsterName::MinionRanged);
+}

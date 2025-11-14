@@ -34,3 +34,8 @@ AVMEnemySpawnMelee::AVMEnemySpawnMelee()
 	}
 #pragma endregion
 }
+
+void AVMEnemySpawnMelee::BeginPlay()
+{
+	SetMonsterType(EMonsterName::MinionMelee);
+}

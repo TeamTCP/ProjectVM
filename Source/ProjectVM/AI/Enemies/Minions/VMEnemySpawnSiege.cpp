@@ -3,6 +3,7 @@
 
 #include "AI/Enemies/Minions/VMEnemySpawnSiege.h"
 
+#include "Core/VMMonsterEnums.h"
 
 
 AVMEnemySpawnSiege::AVMEnemySpawnSiege()
@@ -35,4 +36,10 @@ AVMEnemySpawnSiege::AVMEnemySpawnSiege()
 		AIControllerClass = AIControllerClassRef.Class;
 	}
 #pragma endregion
+}
+
+void AVMEnemySpawnSiege::BeginPlay()
+{
+	Super::BeginPlay();
+	SetMonsterType(EMonsterName::MinionSiege);
 }
