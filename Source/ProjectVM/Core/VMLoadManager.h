@@ -18,6 +18,7 @@ public:
 	struct FVMNPCTalkData* GetNPCTalkRow(FName RowName);
 	struct FVMNPCData* GetNPCDataRow(FName RowName);
 	struct FVMQuestData* GetQuestDataRow(FName RowName);
+	struct FVMEquipmentInfo* GetEquipmentInfoRow(FName RowName);
 
 	//첫 Row를 키로 하고 구조체를 값으로 하는 맵 반환 함수
 	//TMap<FName, FVMQuestData> GetAllQuestDataAsMap();
@@ -98,9 +99,11 @@ private:
 	class UDataTable* NPCTalkDataTable;
 	class UDataTable* NPCDataTable;
 	class UDataTable* QuestDataTable;
+	class UDataTable* EquipmentInfoTable;
 
 	//데이터	테이블 경로
 	FString NPCTalkTablePath = TEXT("/Game/Project/GameData/VMNPCTalkDataTable.VMNPCTalkDataTable");
 	FString NPCDataTablePath = TEXT("/Game/Project/GameData/VMNPCDataTable.VMNPCDataTable");
 	FString QuestDataTablePath = TEXT("/Game/Project/GameData/VMQuestDataTable.VMQuestDataTable");
+	FString EquipmentInfoTableTath = TEXT("/Game/Project/Item/VMEquipmentInfo.VMEquipmentInfo");
 };

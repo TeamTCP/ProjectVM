@@ -6,6 +6,7 @@
 #include "GameData/VMNPCTalkData.h"
 #include "GameData/VMNPCData.h"
 #include "GameData/VMQuestData.h"
+#include "Item/Equipment/VMEquipmentInfo.h"
 
 
 FVMNPCTalkData* UVMLoadManager::GetNPCTalkRow(FName RowName)
@@ -21,4 +22,9 @@ FVMNPCData* UVMLoadManager::GetNPCDataRow(FName RowName)
 FVMQuestData* UVMLoadManager::GetQuestDataRow(FName RowName)
 {
 	return GetTableRow<FVMQuestData>(QuestDataTable, *QuestDataTablePath, RowName, TEXT("QuestDataTable"));
+}
+
+FVMEquipmentInfo* UVMLoadManager::GetEquipmentInfoRow(FName RowName)
+{
+	return GetTableRow<FVMEquipmentInfo>(EquipmentInfoTable, *EquipmentInfoTableTath, RowName, TEXT("EquipmentInfoTable"));
 }

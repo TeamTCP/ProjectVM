@@ -55,7 +55,7 @@ AVMNPC::AVMNPC()
 	InteractKey->SetWidgetSpace(EWidgetSpace::World);
 	InteractKey->SetDrawSize(FVector2D(50.0f, 50.0f));
 	InteractKey->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	static ConstructorHelpers::FClassFinder<UUserWidget> InterectWidgetRef(TEXT("/Game/Project/UI/WBP_VMInteractKeyWidget.WBP_VMInteractKeyWidget_C"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> InterectWidgetRef(TEXT("/Game/Project/UI/Common/WBP_VMInteractKeyWidget.WBP_VMInteractKeyWidget_C"));
 
 	if (InterectWidgetRef.Succeeded())
 	{
