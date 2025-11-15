@@ -8,7 +8,7 @@ AVMEnemySpawnSuper::AVMEnemySpawnSuper()
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -88));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 
-	ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceRef(TEXT("/Script/Engine.AnimBlueprint'/Game/ParagonMinions/Characters/Minions/Down_Minions/Animations/Melee/ABP_SpawnEnemy.ABP_SpawnEnemy_C'"));
+	ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceRef(TEXT("/Script/Engine.AnimBlueprint'/Game/Project/Animation/ABP_SpawnEnemySuper.ABP_SpawnEnemySuper_C'"));
 	ensureAlways(AnimInstanceRef.Class);
 	if (AnimInstanceRef.Class)
 	{
@@ -33,10 +33,22 @@ AVMEnemySpawnSuper::AVMEnemySpawnSuper()
 		AIControllerClass = AIControllerClassRef.Class;
 	}
 #pragma endregion
+
+	ConstructorHelpers::FObjectFinder<UAnimMontage> NormalAttackMontageRef(TEXT("Script/Engine.AnimMontage'/Game/Project/Animation/VM_SuperAttackDefault.VM_SuperAttackDefault'"));
+	if (NormalAttackMontageRef.Object)
+	{
+		NormalAttackMontage = NormalAttackMontageRef.Object;
+	}
+
+	MoveSpeed = 200.0f;
+	AttackSpeed = 1.0f;
+	AttackRange = 300.0f;
+	TurnSpeed = 2.0f;
 }
 
 void AVMEnemySpawnSuper::BeginPlay()
 {
 	Super::BeginPlay();
+
 	SetMonsterType(EMonsterName::MinionSuper);
 }
