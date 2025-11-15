@@ -4,7 +4,7 @@
 #include "AI/BTTask/BTTask_SpawnNormalAttack.h"
 
 #include "AIController.h"
-#include "AI/VMEnemyBase.h"
+#include "AI/Enemies/VMEnemySpawnBase.h"
 
 UBTTask_SpawnNormalAttack::UBTTask_SpawnNormalAttack()
 {
@@ -26,19 +26,13 @@ EBTNodeResult::Type UBTTask_SpawnNormalAttack::ExecuteTask(UBehaviorTreeComponen
 		return EBTNodeResult::Failed;
 	}
 
-	AVMEnemyBase* EnemyPtr = Cast<AVMEnemyBase>(PawnPtr);
+	AVMEnemySpawnBase* EnemyPtr = Cast<AVMEnemySpawnBase>(PawnPtr);
 	if (EnemyPtr == nullptr)
 	{
 		return EBTNodeResult::Failed;
 	}
 
-	UAnimInstance* AnimInstance = EnemyPtr->GetMesh()->GetAnimInstance();
-	ensureAlways(AnimInstance);
-	if (AnimInstance)
-	{
-		const float AnimPlayRate = 2.0f;
-		AnimInstance->Montage_Play(EnemyPtr->LaserAttackMontage, AnimPlayRate);
-	}
+	EnemyPtr->NormalAttack();
 
 	return EBTNodeResult::InProgress;
 }
@@ -47,20 +41,18 @@ void UBTTask_SpawnNormalAttack::TickTask(UBehaviorTreeComponent& OwnerComp, uint
 {
 	AAIController* AIController = OwnerComp.GetAIOwner();
 
-	AVMEnemyBase* Character = Cast<AVMEnemyBase>(AIController->GetPawn());
+	AVMEnemySpawnBase* Character = Cast<AVMEnemySpawnBase>(AIController->GetPawn());
 	if (!Character)
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
 
-	// 3️⃣ 공격 종료 조건 판정
 	UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance();
-	if (!AnimInstance->Montage_IsPlaying(Character->LaserAttackMontage))
+	if (AnimInstance->Montage_IsPlaying(Character->GetNormalMontage()) == true)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Finish"));
-
-		// 애니메이션이 끝났으면 종료
-		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+		return;
 	}
+
+	FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 }
