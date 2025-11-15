@@ -20,8 +20,7 @@ enum class EAllyMontage
 };
 
 UCLASS()
-class PROJECTVM_API AVMAllyBase : public ACharacter,
-	public IVMAIEnemyBaseInterface
+class PROJECTVM_API AVMAllyBase : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -41,13 +40,6 @@ protected:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 #pragma endregion 
-
-#pragma region IVMAIEnemyBaseInterface
-	virtual float GetAIPatrolRadius() override;
-	virtual float GetAIDetectRange() override;
-	virtual float GetAIAttackRange() override;
-	virtual float GetAITurnSpeed() override;
-#pragma endregion
 
 #pragma region Skill
 public:
