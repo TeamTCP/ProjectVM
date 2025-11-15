@@ -38,25 +38,7 @@ AVMSpawnAIControllerBase::AVMSpawnAIControllerBase()
 void AVMSpawnAIControllerBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//UE_LOG(LogTemp, Log, TEXT("BeginPlay Name: %s"), *GetName());
 	
-	ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-	if (PlayerCharacter)
-	{
-		UE_LOG(LogTemp, Log, TEXT("Name: %s BeginPlay"), *PlayerCharacter->GetName());
-		UBlackboardComponent* BBComp = GetBlackboardComponent();
-		if (BBComp)
-		{
-			BBComp->SetValueAsObject(TEXT("EnemyTarget"), PlayerCharacter);
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Log, TEXT("Name: null BeginPlay"));
-	}
-	
-
 	 RunBehaviorTree(BTAsset);
 }
 
@@ -64,7 +46,7 @@ void AVMSpawnAIControllerBase::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	/*ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	if (PlayerCharacter)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Name: %s OnPossess"), *PlayerCharacter->GetName());
@@ -72,9 +54,9 @@ void AVMSpawnAIControllerBase::OnPossess(APawn* InPawn)
 	else
 	{
 		UE_LOG(LogTemp, Log, TEXT("Name: null OnPossess"));
-	}
+	}*/
 
-	//ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	/*if (PlayerCharacter == nullptr)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Name: nullptr인데"));
