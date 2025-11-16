@@ -17,7 +17,6 @@ public:
 	UBTTask_FireStraightProjectile();
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 private:
 	// case 1: 내 방향으로 1발 쏘기
