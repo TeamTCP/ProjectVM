@@ -114,6 +114,7 @@ void AVMStraightProjectile::HitAndDestroy(UPrimitiveComponent* HitComponent, AAc
 	// TODO: 데미지 주는 거 필요. 일단 Base에 넣는걸로 하자.
 	if (PawnActor == nullptr)
 	{
+		Destroy();
 		return;
 	}
 
