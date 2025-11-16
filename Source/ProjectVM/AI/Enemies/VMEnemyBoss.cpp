@@ -41,7 +41,7 @@ void AVMEnemyBoss::InitDefaultSetting()
 	GetCapsuleComponent()->SetLineThickness(1.0f);
 	GetCapsuleComponent()->SetWorldScale3D(FVector(2.0f, 2.0f, 2.0f));
 
-
+	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -120.0f));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 }

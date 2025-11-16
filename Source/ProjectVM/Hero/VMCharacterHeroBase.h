@@ -37,6 +37,11 @@ protected:
 
 	void DebuggingTest(const FInputActionValue& Value);
 
+	// 죄송합니다. 손 좀 대겠습니다.
+public:
+	UFUNCTION()
+	void OnHitExplosionByAOE(AActor* Target, FVector ExplosionCenter);
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USpringArmComponent> CameraBoom;

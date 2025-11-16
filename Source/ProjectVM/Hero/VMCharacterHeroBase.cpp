@@ -255,3 +255,25 @@ void AVMCharacterHeroBase::DebuggingTest(const FInputActionValue& Value)
 	//FVMNPCData* LoadedData = GetGameInstance()->GetSubsystem<UVMLoadManager>()->GetNPCDataRow(NPCId);
 	GetGameInstance()->GetSubsystem<UVMQuestManager>()->NotifyMonsterDeath(EMonsterName::Warrior);
 }
+
+
+void AVMCharacterHeroBase::OnHitExplosionByAOE(AActor* Target, FVector ExplosionCenter)
+{
+	if (Target != this)
+	{
+		return;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("내가 몇번 호출되었게?"));
+
+	// 폭발 중심 -> 자기 자신 방향
+	FVector Direction = GetActorLocation() - ExplosionCenter;
+	Direction.Z = 0;
+	Direction.Normalize();
+
+	float LaunchStrength = 1500.f;
+	FVector LaunchVelocity = Direction * LaunchStrength;
+	LaunchVelocity.Z = 500.f;
+
+	LaunchCharacter(LaunchVelocity, true, true);
+}
