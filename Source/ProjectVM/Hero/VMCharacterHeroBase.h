@@ -50,8 +50,11 @@ class PROJECTVM_API AVMCharacterHeroBase : public ACharacter, public IVMStatChan
 public:
 	AVMCharacterHeroBase();
 
-	virtual void HealthPointChange(float Amount, AActor* Causer);
+	FORCEINLINE class UVMHeroStatComponent* GetStatComponent() { return Stat; }
+	FORCEINLINE class UVMHeroSkillComponent* GetSkillComponent() { return Skills; }
+	
 	void ChangeInputMode(EInputMode NewMode);
+	virtual void HealthPointChange(float Amount, AActor* Causer) override; // TODO : ApplyDamage로 네이밍 변경 고려
 	void SetInteractNPC(class AVMNPC* NewInteractNPC);
 
 	FORCEINLINE bool IsInteracting() const { return GetWorldTimerManager().IsTimerActive(TimerHandle_Interaction); };
@@ -59,15 +62,18 @@ public:
 	void UpdateInteractionWidget() const;
 	void DropItem(UVMEquipment* ItemToDrop, const int32 QuantityToDrop);
 
-
 protected:
 	virtual void BeginPlay() override;
 	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void ApplySpeed(int32 SpeedStat);
 
 	void BasicSkill(const FInputActionValue& Value);
+	void AdvancedSkill(const FInputActionValue& Value);
+	void MovementSkill(const FInputActionValue& Value);
+	void UltimateSkill(const FInputActionValue& Value);
 
 	//상호작용
 	void Interact(const FInputActionValue& Value);
@@ -124,6 +130,15 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> LeftMouseSkillAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> RightMouseSkillAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> ShiftSkillAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> MiddleMouseSkillAction;
 
 	//E 상호작용
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))

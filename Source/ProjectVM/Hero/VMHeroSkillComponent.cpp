@@ -2,6 +2,7 @@
 
 
 #include "Hero/VMHeroSkillComponent.h"
+#include "Hero/VMHeroStatComponent.h"
 #include "Hero/VMCharacterHeroBase.h"
 #include "Hero/SkillBase.h"
 #include "Hero/HeroStat.h"
@@ -11,37 +12,56 @@ UVMHeroSkillComponent::UVMHeroSkillComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-void UVMHeroSkillComponent::ExecuteBasicSkill(FHeroStat& CurStat)
+void UVMHeroSkillComponent::ExecuteBasicSkill(AVMCharacterHeroBase* Owner, UVMHeroStatComponent* StatComp)
 {
-	if (BasicSkill == nullptr) return;
-	if (BasicSkill->IsSkillValid(CurStat) == false) return;
-
-	AVMCharacterHeroBase* Owner = Cast<AVMCharacterHeroBase>(GetOwner());
-	BasicSkill->ActivateSkill(Owner, CurStat);
+	if (BasicSkill == nullptr)
+	{
+		return;
+	}
+	
+	if (BasicSkill->IsSkillValid(StatComp->GetStat()))
+	{
+		BasicSkill->ActivateSkill(Owner, StatComp);
+	}
 }
 
-void UVMHeroSkillComponent::ExecuteAdvancedSkill(FHeroStat& CurStat)
+void UVMHeroSkillComponent::ExecuteAdvancedSkill(class AVMCharacterHeroBase* Owner, class UVMHeroStatComponent* StatComp)
 {
-	if (AdvancedSkill == nullptr) return;
-	if (AdvancedSkill->IsSkillValid(CurStat) == false) return;
-
-	//AdvancedSkill->ActivateSkill(CurStat);
+	if (AdvancedSkill == nullptr)
+	{
+		return;
+	}
+	
+	if (AdvancedSkill->IsSkillValid(StatComp->GetStat()))
+	{
+		AdvancedSkill->ActivateSkill(Owner, StatComp);
+	}
 }
 
-void UVMHeroSkillComponent::ExecuteMovementSkill(FHeroStat& CurStat)
+void UVMHeroSkillComponent::ExecuteMovementSkill(class AVMCharacterHeroBase* Owner, class UVMHeroStatComponent* StatComp)
 {
-	if (MovementSkill == nullptr) return;
-	if (MovementSkill->IsSkillValid(CurStat) == false) return;
-
-	//MovementSkill->ActivateSkill(CurStat);
+	if (MovementSkill == nullptr)
+	{
+		return;
+	}
+	
+	if (MovementSkill->IsSkillValid(StatComp->GetStat()))
+	{
+		MovementSkill->ActivateSkill(Owner, StatComp);
+	}
 }
 
-void UVMHeroSkillComponent::ExecuteUltimateSkill(FHeroStat& CurStat)
+void UVMHeroSkillComponent::ExecuteUltimateSkill(class AVMCharacterHeroBase* Owner, class UVMHeroStatComponent* StatComp)
 {
-	if (UltimateSkill == nullptr) return;
-	if (UltimateSkill->IsSkillValid(CurStat) == false) return;
-
-	//UltimateSkill->ActivateSkill(CurStat);
+	if (UltimateSkill == nullptr)
+	{
+		return;
+	}
+	
+	if (UltimateSkill->IsSkillValid(StatComp->GetStat()))
+	{
+		UltimateSkill->ActivateSkill(Owner, StatComp);
+	}
 }
 
 void UVMHeroSkillComponent::BindBasicSkill(USkillBase* InSkill)
@@ -67,7 +87,6 @@ void UVMHeroSkillComponent::BindUltimateSkill(USkillBase* InSkill)
 void UVMHeroSkillComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 void UVMHeroSkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -75,5 +94,8 @@ void UVMHeroSkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	if (BasicSkill != nullptr) BasicSkill->ReduceCooldown(DeltaTime);
+	if (AdvancedSkill != nullptr) AdvancedSkill->ReduceCooldown(DeltaTime);
+	if (MovementSkill != nullptr) MovementSkill->ReduceCooldown(DeltaTime);
+	if (UltimateSkill != nullptr) UltimateSkill->ReduceCooldown(DeltaTime);
 }
 

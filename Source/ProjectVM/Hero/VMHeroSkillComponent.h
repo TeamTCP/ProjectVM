@@ -15,10 +15,10 @@ class PROJECTVM_API UVMHeroSkillComponent : public UActorComponent
 public:	
 	UVMHeroSkillComponent();
 
-	void ExecuteBasicSkill(struct FHeroStat& CurStat);
-	void ExecuteAdvancedSkill(struct FHeroStat& CurStat);
-	void ExecuteMovementSkill(struct FHeroStat& CurStat);
-	void ExecuteUltimateSkill(struct FHeroStat& CurStat);
+	void ExecuteBasicSkill(class AVMCharacterHeroBase* Owner, class UVMHeroStatComponent* StatComp);
+	void ExecuteAdvancedSkill(class AVMCharacterHeroBase* Owner, class UVMHeroStatComponent* StatComp);
+	void ExecuteMovementSkill(class AVMCharacterHeroBase* Owner, class UVMHeroStatComponent* StatComp);
+	void ExecuteUltimateSkill(class AVMCharacterHeroBase* Owner, class UVMHeroStatComponent* StatComp);
 
 	void BindBasicSkill(class USkillBase* InSkill);
 	void BindAdvancedSkill(class USkillBase* InSkill);

@@ -97,6 +97,24 @@ AVMCharacterHeroBase::AVMCharacterHeroBase()
 		LeftMouseSkillAction = LeftMouseSkillActionRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> RightMouseSkillActionRef(TEXT("/Game/Project/Input/Actions/IA_RightMouseSkill.IA_RightMouseSkill"));
+	if (RightMouseSkillActionRef.Succeeded())
+	{
+		RightMouseSkillAction = RightMouseSkillActionRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> ShiftSkillActionRef(TEXT("/Game/Project/Input/Actions/IA_ShiftSkill.IA_ShiftSkill"));
+	if (ShiftSkillActionRef.Succeeded())
+	{
+		ShiftSkillAction = ShiftSkillActionRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> MiddleMouseSkillActionRef(TEXT("/Game/Project/Input/Actions/IA_MiddleMouseSkill.IA_MiddleMouseSkill"));
+	if (MiddleMouseSkillActionRef.Succeeded())
+	{
+		MiddleMouseSkillAction = MiddleMouseSkillActionRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UInputAction> InteractActionRef(TEXT("/Game/Project/Input/Actions/IA_Interact.IA_Interact"));
 	if (InteractActionRef.Succeeded())
 	{
@@ -140,8 +158,8 @@ AVMCharacterHeroBase::AVMCharacterHeroBase()
 void AVMCharacterHeroBase::HealthPointChange(float Amount, AActor* Causer)
 {
 	if (Causer == nullptr || Causer->IsValidLowLevel() == false) return;
-
-	UE_LOG(LogTemp, Log, TEXT("%f, %s HealthPointChange() 적용됨"), Amount, *Causer->GetName());
+	
+	UE_LOG(LogTemp, Log, TEXT("%f, %s에 의한 HealthPointChange() 적용됨"), Amount, *Causer->GetName());
 	Stat->ApplyDamage(Amount);
 }
 
@@ -201,6 +219,8 @@ void AVMCharacterHeroBase::BeginPlay()
 	}
 	//HUD = Cast<AVMCharacterHeroHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
 	HUD = HUDPtr;
+
+	Stat->OnSpeedChanged.AddUObject(this, &AVMCharacterHeroBase::ApplySpeed);
 }
 
 void AVMCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -213,8 +233,11 @@ void AVMCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::Move);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::Look);
-	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::Interact);
 	EnhancedInputComponent->BindAction(LeftMouseSkillAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::BasicSkill);
+	EnhancedInputComponent->BindAction(RightMouseSkillAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::AdvancedSkill);
+	EnhancedInputComponent->BindAction(ShiftSkillAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::MovementSkill);
+	EnhancedInputComponent->BindAction(MiddleMouseSkillAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::UltimateSkill);
+	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::Interact);
 	EnhancedInputComponent->BindAction(DebuggingAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::DebuggingTest);
 	
 	
@@ -253,15 +276,42 @@ void AVMCharacterHeroBase::Look(const FInputActionValue& Value)
 	AddControllerPitchInput(LookAxisVector.Y);
 }
 
+void AVMCharacterHeroBase::ApplySpeed(int32 SpeedStat)
+{
+	GetCharacterMovement()->MaxAcceleration = 500.f + SpeedStat;
+	GetCharacterMovement()->MaxWalkSpeed = 500.f + SpeedStat;
+}
+
 void AVMCharacterHeroBase::BasicSkill(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("Left Mouse Skill !"));
-	
 	if (Stat == nullptr) return;
 	if (Skills == nullptr) return;
+	
+	Skills->ExecuteBasicSkill(this, Stat);
+}
 
-	FHeroStat CurStat = Stat->GetStat();
-	Skills->ExecuteBasicSkill(CurStat);
+void AVMCharacterHeroBase::AdvancedSkill(const FInputActionValue& Value)
+{
+	if (Stat == nullptr) return;
+	if (Skills == nullptr) return;
+	
+	Skills->ExecuteAdvancedSkill(this, Stat);
+}
+
+void AVMCharacterHeroBase::MovementSkill(const FInputActionValue& Value)
+{
+	if (Stat == nullptr) return;
+	if (Skills == nullptr) return;
+	
+	Skills->ExecuteMovementSkill(this, Stat);
+}
+
+void AVMCharacterHeroBase::UltimateSkill(const FInputActionValue& Value)
+{
+	if (Stat == nullptr) return;
+	if (Skills == nullptr) return;
+	
+	Skills->ExecuteUltimateSkill(this, Stat);
 }
 
 void AVMCharacterHeroBase::Interact(const FInputActionValue& Value)
