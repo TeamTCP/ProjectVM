@@ -19,6 +19,11 @@ public:
 	void SetUp(const FVMEquipmentInfo& Info);
 
 	virtual void NativeConstruct() override;
+
+	FORCEINLINE const FVMEquipmentInfo* GetEquipmentInfo() const
+	{
+		return EquipmentInfo;
+	}
 private:
 	UFUNCTION()
 	void OnItemButtonClicked();
@@ -42,6 +47,7 @@ public:
 	UPROPERTY()
 	TObjectPtr<class UVMShopScreen> ShopScreen;
 
+	int32 InventoryIndex = 0;
 private:
 	const FVMEquipmentInfo* EquipmentInfo; //아이템 구조체를 참조해서 가지고 있는다.
 };

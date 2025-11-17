@@ -42,10 +42,18 @@ void UVMShopItemWidget::SetUp(const FVMEquipmentInfo& Info)
 
 void UVMShopItemWidget::NativeConstruct()
 {
-	if (ItemButton != nullptr)
+	if (ItemButton == nullptr)
+	{
+		return;
+	}
+
+	//중복 바인딩 방지. 그리드 Repack 시 또 다시 호출되기 때문에 막아줘야한다.
+	if (!ItemButton->OnClicked.IsAlreadyBound(this, &UVMShopItemWidget::OnItemButtonClicked))
 	{
 		ItemButton->OnClicked.AddDynamic(this, &UVMShopItemWidget::OnItemButtonClicked);
 	}
+
+
 }
 
 void UVMShopItemWidget::OnItemButtonClicked()
@@ -53,7 +61,7 @@ void UVMShopItemWidget::OnItemButtonClicked()
 	UE_LOG(LogTemp, Log, TEXT("Button Click"));
 	if (ShopScreen != nullptr)
 	{
-		ShopScreen->OnGridItemButtonClicked(*EquipmentInfo); //포인터의 구조체 전달
+		//ShopScreen->OnGridItemButtonClicked(*EquipmentInfo); //포인터의 구조체 전달
+		ShopScreen->OnGridItemButtonClicked(this); //위젯 자기자신 전달
 	}
-
 }

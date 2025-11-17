@@ -18,7 +18,7 @@ class PROJECTVM_API UVMEquipment : public UObject
 
 public:
 	void EquipEffect(class AVMCharacterHeroBase* Owner);
-	FORCEINLINE FVMEquipmentInfo GetEquipmentInfo() { return EquipmentInfo; }
+	FORCEINLINE FVMEquipmentInfo& GetEquipmentInfo() { return EquipmentInfo; }
 	
 protected:
 	friend class UItemFactorySubsystem;
