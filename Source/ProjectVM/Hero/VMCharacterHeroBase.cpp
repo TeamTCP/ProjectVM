@@ -101,6 +101,12 @@ AVMCharacterHeroBase::AVMCharacterHeroBase()
 		ShiftSkillAction = ShiftSkillActionRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> MiddleMouseSkillActionRef(TEXT("/Game/Project/Input/Actions/IA_MiddleMouseSkill.IA_MiddleMouseSkill"));
+	if (MiddleMouseSkillActionRef.Succeeded())
+	{
+		MiddleMouseSkillAction = MiddleMouseSkillActionRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UInputAction> InteractActionRef(TEXT("/Game/Project/Input/Actions/IA_Interact.IA_Interact"));
 	if (InteractActionRef.Succeeded())
 	{
@@ -189,6 +195,7 @@ void AVMCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	EnhancedInputComponent->BindAction(LeftMouseSkillAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::BasicSkill);
 	EnhancedInputComponent->BindAction(RightMouseSkillAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::AdvancedSkill);
 	EnhancedInputComponent->BindAction(ShiftSkillAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::MovementSkill);
+	EnhancedInputComponent->BindAction(MiddleMouseSkillAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::UltimateSkill);
 	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::Interact);
 	EnhancedInputComponent->BindAction(DebuggingAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::DebuggingTest);
 

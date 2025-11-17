@@ -94,5 +94,8 @@ void UVMHeroSkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	if (BasicSkill != nullptr) BasicSkill->ReduceCooldown(DeltaTime);
+	if (AdvancedSkill != nullptr) AdvancedSkill->ReduceCooldown(DeltaTime);
+	if (MovementSkill != nullptr) MovementSkill->ReduceCooldown(DeltaTime);
+	if (UltimateSkill != nullptr) UltimateSkill->ReduceCooldown(DeltaTime);
 }
 
