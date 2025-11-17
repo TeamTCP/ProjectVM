@@ -18,6 +18,12 @@
 #include "NPC/VMNPC.h"
 #include "Quest/VMQuestManager.h"
 
+#include "UI/Character/VMCharacterHeroHUD.h"
+#include "Inventory/VMPickup.h"
+#include "Inventory/VMInventoryComponent.h"
+
+
+
 AVMCharacterHeroBase::AVMCharacterHeroBase()
 {
 	bUseControllerRotationPitch = false;
@@ -91,6 +97,24 @@ AVMCharacterHeroBase::AVMCharacterHeroBase()
 		LeftMouseSkillAction = LeftMouseSkillActionRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> RightMouseSkillActionRef(TEXT("/Game/Project/Input/Actions/IA_RightMouseSkill.IA_RightMouseSkill"));
+	if (RightMouseSkillActionRef.Succeeded())
+	{
+		RightMouseSkillAction = RightMouseSkillActionRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> ShiftSkillActionRef(TEXT("/Game/Project/Input/Actions/IA_ShiftSkill.IA_ShiftSkill"));
+	if (ShiftSkillActionRef.Succeeded())
+	{
+		ShiftSkillAction = ShiftSkillActionRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> MiddleMouseSkillActionRef(TEXT("/Game/Project/Input/Actions/IA_MiddleMouseSkill.IA_MiddleMouseSkill"));
+	if (MiddleMouseSkillActionRef.Succeeded())
+	{
+		MiddleMouseSkillAction = MiddleMouseSkillActionRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UInputAction> InteractActionRef(TEXT("/Game/Project/Input/Actions/IA_Interact.IA_Interact"));
 	if (InteractActionRef.Succeeded())
 	{
@@ -111,13 +135,31 @@ AVMCharacterHeroBase::AVMCharacterHeroBase()
 
 	Stat = CreateDefaultSubobject<UVMHeroStatComponent>(TEXT("Stat"));
 	Skills = CreateDefaultSubobject<UVMHeroSkillComponent>(TEXT("Skills"));
+
+
+	// 인벤토리 관련
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> ToggleActionRef(TEXT("/Game/Project/Input/Actions/IA_ToggelMenu.IA_ToggelMenu"));
+	if (ToggleActionRef.Succeeded())
+	{
+		UE_LOG(LogTemp, Log, TEXT("QWER 여긴 오니"));
+		ToggleAction = ToggleActionRef.Object;
+	}
+
+
+	PlayerInventory = CreateDefaultSubobject<UVMInventoryComponent>(TEXT("PlayerInventory"));
+
+	InteractionCheckFrequency = 0.1;
+	InteractionCheckDistance = 225.0f;
+
+	BaseEyeHeight = 74.0f;
 }
 
 void AVMCharacterHeroBase::HealthPointChange(float Amount, AActor* Causer)
 {
 	if (Causer == nullptr || Causer->IsValidLowLevel() == false) return;
-
-	UE_LOG(LogTemp, Log, TEXT("%f, %s HealthPointChange() 적용됨"), Amount, *Causer->GetName());
+	
+	UE_LOG(LogTemp, Log, TEXT("%f, %s에 의한 HealthPointChange() 적용됨"), Amount, *Causer->GetName());
 	Stat->ApplyDamage(Amount);
 }
 
@@ -162,6 +204,23 @@ void AVMCharacterHeroBase::BeginPlay()
 	{
 		InputSystem->AddMappingContext(InputMappingContext, 0);
 	}
+
+	APlayerController* ControllerPtr = GetWorld()->GetFirstPlayerController();
+	if (ControllerPtr == nullptr)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Controller is nullptr"));
+		return;
+	}
+	AVMCharacterHeroHUD* HUDPtr = Cast<AVMCharacterHeroHUD>(ControllerPtr->GetHUD());
+	if (HUDPtr == nullptr)
+	{
+		UE_LOG(LogTemp, Log, TEXT("AVMCharacterHeroHUD is nullptr"));
+		return;
+	}
+	//HUD = Cast<AVMCharacterHeroHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+	HUD = HUDPtr;
+
+	Stat->OnSpeedChanged.AddUObject(this, &AVMCharacterHeroBase::ApplySpeed);
 }
 
 void AVMCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -174,12 +233,25 @@ void AVMCharacterHeroBase::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::Move);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::Look);
-	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::Interact);
 	EnhancedInputComponent->BindAction(LeftMouseSkillAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::BasicSkill);
+	EnhancedInputComponent->BindAction(RightMouseSkillAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::AdvancedSkill);
+	EnhancedInputComponent->BindAction(ShiftSkillAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::MovementSkill);
+	EnhancedInputComponent->BindAction(MiddleMouseSkillAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::UltimateSkill);
+	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::Interact);
 	EnhancedInputComponent->BindAction(DebuggingAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::DebuggingTest);
+	
+	
+	EnhancedInputComponent->BindAction(ToggleAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::ToggleMenu);
+	
+	//EnhancedInputComponent->BindAction(Toggle, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::BeginInteract);
+	//EnhancedInputComponent->BindAction(Toggle, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::EndInteract);
 
 	//다이얼로그
 	EnhancedInputComponent->BindAction(NextTalkAction, ETriggerEvent::Triggered, this, &AVMCharacterHeroBase::NextTalk);
+
+	//인벤토리
+
+
 }
 
 void AVMCharacterHeroBase::Move(const FInputActionValue& Value)
@@ -204,15 +276,42 @@ void AVMCharacterHeroBase::Look(const FInputActionValue& Value)
 	AddControllerPitchInput(LookAxisVector.Y);
 }
 
+void AVMCharacterHeroBase::ApplySpeed(int32 SpeedStat)
+{
+	GetCharacterMovement()->MaxAcceleration = 500.f + SpeedStat;
+	GetCharacterMovement()->MaxWalkSpeed = 500.f + SpeedStat;
+}
+
 void AVMCharacterHeroBase::BasicSkill(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("Left Mouse Skill !"));
-	
 	if (Stat == nullptr) return;
 	if (Skills == nullptr) return;
+	
+	Skills->ExecuteBasicSkill(this, Stat);
+}
 
-	FHeroStat CurStat = Stat->GetStat();
-	Skills->ExecuteBasicSkill(CurStat);
+void AVMCharacterHeroBase::AdvancedSkill(const FInputActionValue& Value)
+{
+	if (Stat == nullptr) return;
+	if (Skills == nullptr) return;
+	
+	Skills->ExecuteAdvancedSkill(this, Stat);
+}
+
+void AVMCharacterHeroBase::MovementSkill(const FInputActionValue& Value)
+{
+	if (Stat == nullptr) return;
+	if (Skills == nullptr) return;
+	
+	Skills->ExecuteMovementSkill(this, Stat);
+}
+
+void AVMCharacterHeroBase::UltimateSkill(const FInputActionValue& Value)
+{
+	if (Stat == nullptr) return;
+	if (Skills == nullptr) return;
+	
+	Skills->ExecuteUltimateSkill(this, Stat);
 }
 
 void AVMCharacterHeroBase::Interact(const FInputActionValue& Value)
@@ -254,4 +353,202 @@ void AVMCharacterHeroBase::DebuggingTest(const FInputActionValue& Value)
 
 	//FVMNPCData* LoadedData = GetGameInstance()->GetSubsystem<UVMLoadManager>()->GetNPCDataRow(NPCId);
 	GetGameInstance()->GetSubsystem<UVMQuestManager>()->NotifyMonsterDeath(EMonsterName::Warrior);
+}
+
+
+
+// 인벤토리
+void AVMCharacterHeroBase::PerformInteractionCheck()
+{
+	InteractionData.LastInteractionCheckTime = GetWorld()->GetTimeSeconds();
+
+	FVector TraceStart{ GetPawnViewLocation() };
+	FVector TraceEnd{ TraceStart + (GetViewRotation().Vector() * InteractionCheckDistance) };
+
+	float LookDirection = FVector::DotProduct(GetActorForwardVector(), GetViewRotation().Vector());
+
+	if (LookDirection > 0)
+	{
+
+		//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 1.0f, 0, 2.0f);
+
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(this);
+		FHitResult TraceHit;
+
+		if (GetWorld()->LineTraceSingleByChannel(TraceHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
+		{
+			if (TraceHit.GetActor()->GetClass()->ImplementsInterface(UVMInteractionInterface::StaticClass()))
+			{
+				const float Distance = (TraceStart - TraceHit.ImpactPoint).Size();
+
+				if (TraceHit.GetActor() != InteractionData.CurrentInteractable && Distance <= InteractionCheckDistance)
+				{
+					FoundInteractable(TraceHit.GetActor());
+					return;
+				}
+
+				if (TraceHit.GetActor() == InteractionData.CurrentInteractable)
+				{
+					return;
+				}
+			}
+		}
+	}
+
+
+
+	NoInteractableFound();
+}
+
+void AVMCharacterHeroBase::FoundInteractable(AActor* NewInteractable)
+{
+	if (IsInteracting())
+	{
+		EndInteract();
+	}
+
+	if (InteractionData.CurrentInteractable)
+	{
+		TargetInteractable = InteractionData.CurrentInteractable;
+		TargetInteractable->EndFocus();
+	}
+
+	InteractionData.CurrentInteractable = NewInteractable;
+	TargetInteractable = NewInteractable;
+
+	HUD->UpdateInteractionWidget(&TargetInteractable->InteractableData);
+
+	TargetInteractable->BeginFocus();
+
+}
+
+void AVMCharacterHeroBase::NoInteractableFound()
+{
+	if (IsInteracting())
+	{
+		GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
+	}
+
+	if (InteractionData.CurrentInteractable)
+	{
+		if (IsValid(TargetInteractable.GetObject()))
+		{
+			TargetInteractable->EndFocus();
+		}
+
+		HUD->HideInteractionWidget();
+
+		// hide interaction widget on the HUD
+		InteractionData.CurrentInteractable = nullptr;
+		TargetInteractable = nullptr;
+	}
+}
+
+
+
+void AVMCharacterHeroBase::BeginInteract()
+{
+	//verify nothing has changed with the interactable state since beginning interaction
+	PerformInteractionCheck();
+
+	if (InteractionData.CurrentInteractable)
+	{
+		if (IsValid(TargetInteractable.GetObject()))
+		{
+			TargetInteractable->BeginInteract();
+
+			if (FMath::IsNearlyZero(TargetInteractable->InteractableData.InteractionDuration, 0.1f))
+			{
+				BeingInteract();
+			}
+			else
+			{
+				GetWorldTimerManager().SetTimer(TimerHandle_Interaction, this, &AVMCharacterHeroBase::BeingInteract,
+					TargetInteractable->InteractableData.InteractionDuration, false);
+			}
+		}
+	}
+}
+
+void AVMCharacterHeroBase::EndInteract()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
+
+	if (IsValid(TargetInteractable.GetObject()))
+	{
+		TargetInteractable->EndInteract();
+	}
+}
+
+void AVMCharacterHeroBase::BeingInteract()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
+
+	if (IsValid(TargetInteractable.GetObject()))
+	{
+		TargetInteractable->BeingInteract(this);
+	}
+}
+
+
+void AVMCharacterHeroBase::UpdateInteractionWidget() const
+{
+	if (IsValid(TargetInteractable.GetObject()))
+	{
+		HUD->UpdateInteractionWidget(&TargetInteractable->InteractableData);
+	}
+}
+
+void AVMCharacterHeroBase::DropItem(UVMEquipment* ItemToDrop, const int32 QuantityToDrop)
+{
+	if (PlayerInventory->FindMatchingItem(ItemToDrop))
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.bNoFail = true;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+		const FVector SpawnLocation({ GetActorLocation() + (GetActorForwardVector() * 50.0f) });
+
+		const FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
+
+		//const int32 RemovedQuantity = PlayerInventory->RemoveAmountOfItem(ItemToDrop, QuantityToDrop);
+
+		TObjectPtr<AVMPickup> Pickup = GetWorld()->SpawnActor<AVMPickup>(AVMPickup::StaticClass(), SpawnTransform, SpawnParams);
+
+		Pickup->InitializeDrop(ItemToDrop);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Item do drop was somehow null!"));
+	}
+}
+
+void AVMCharacterHeroBase::ToggleMenu()
+{
+	UE_LOG(LogTemp, Log, TEXT("QWER "));
+	HUD->ToggleMenu();
+}
+
+
+void AVMCharacterHeroBase::OnHitExplosionByAOE(AActor* Target, FVector ExplosionCenter)
+{
+	if (Target != this)
+	{
+		return;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("내가 몇번 호출되었게?"));
+
+	// 폭발 중심 -> 자기 자신 방향
+	FVector Direction = GetActorLocation() - ExplosionCenter;
+	Direction.Z = 0;
+	Direction.Normalize();
+
+	float LaunchStrength = 1500.f;
+	FVector LaunchVelocity = Direction * LaunchStrength;
+	LaunchVelocity.Z = 500.f;
+
+	LaunchCharacter(LaunchVelocity, true, true);
 }

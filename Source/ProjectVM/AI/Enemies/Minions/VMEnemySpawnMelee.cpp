@@ -33,9 +33,22 @@ AVMEnemySpawnMelee::AVMEnemySpawnMelee()
 		AIControllerClass = AIControllerClassRef.Class;
 	}
 #pragma endregion
+
+	ConstructorHelpers::FObjectFinder<UAnimMontage> NormalAttackMontageRef(TEXT("Script/Engine.AnimMontage'/Game/Project/Animation/VM_MeleeAttackDefault.VM_MeleeAttackDefault'"));
+	if (NormalAttackMontageRef.Object)
+	{
+		NormalAttackMontage = NormalAttackMontageRef.Object;
+	}
+	
+	MoveSpeed = 200.0f;
+	AttackSpeed = 1.0f;
+	AttackRange = 300.0f;
+	TurnSpeed = 2.0f;
 }
 
 void AVMEnemySpawnMelee::BeginPlay()
 {
+	Super::BeginPlay();
+
 	SetMonsterType(EMonsterName::MinionMelee);
 }

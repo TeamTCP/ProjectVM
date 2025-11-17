@@ -117,7 +117,8 @@ void UBTTask_SummonMinions::OnTaskFinished(UBehaviorTreeComponent& OwnerComp, ui
 	for (int i = 0; i < 1; ++i)
 	{
 		UE_LOG(LogTemp, Log, TEXT("(%f, %f, %f)"), MyPos.X, MyPos.Y, MyPos.Z);
-		NavSys->GetRandomReachablePointInRadius(MyPos, 3000, RandomLocation);
+		NavSys->GetRandomReachablePointInRadius(MyPos, 20000, RandomLocation);
+
 		BossPtr->SummonMinion(RandomLocation.Location);
 	}
 }

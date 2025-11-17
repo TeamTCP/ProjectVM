@@ -11,6 +11,8 @@
 #include "AI/Enemies/Minions/VMEnemySpawnSiege.h"
 #include "AI/Enemies/Minions/VMEnemySpawnSuper.h"
 
+#include "Kismet/GameplayStatics.h"
+
 // Sets default values
 AVMEnemyBoss::AVMEnemyBoss()
 {
@@ -39,7 +41,7 @@ void AVMEnemyBoss::InitDefaultSetting()
 	GetCapsuleComponent()->SetLineThickness(1.0f);
 	GetCapsuleComponent()->SetWorldScale3D(FVector(2.0f, 2.0f, 2.0f));
 
-
+	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -120.0f));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 }
@@ -99,20 +101,28 @@ void AVMEnemyBoss::ActivateSummonMontage()
 
 void AVMEnemyBoss::SummonMinion(FVector Pos)
 {
-	//FVector CurretLocation = GetActorLocation();
-	FVector SummonLocation = Pos;
+	int32 Index = FMath::RandRange(0, Spawners.Num() - 1);
+	
+	FVector SummonLocation = Spawners[Index]->GetActorLocation();
 	FTransform SummonTransform(SummonLocation);
 	
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride =
+		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-	int32 Index = FMath::RandRange(0, EnemySpawnArray.Num() - 1);
-	AVMEnemySpawnBase* SpawnActor = GetWorld()->SpawnActor<AVMEnemySpawnBase>(EnemySpawnArray[Index], SummonTransform);
-
-	if (SpawnActor == nullptr)
+	if (EnemySpawnArray.Num() > 0)
 	{
-		return;
-	}
+		Index = FMath::RandRange(0, EnemySpawnArray.Num() - 1);
+		
+		AVMEnemySpawnBase* SpawnActor = GetWorld()->SpawnActor<AVMEnemySpawnBase>(EnemySpawnArray[Index], SummonTransform, Params);
 
-	UE_LOG(LogTemp, Log, TEXT("소환되었단다. 확인해보렴."));
+		if (SpawnActor == nullptr)
+		{
+			return;
+		}
+
+		UE_LOG(LogTemp, Log, TEXT("소환되었단다. 확인해보렴."));
+	}
 }
 
 void AVMEnemyBoss::DeactivateSummonMontage()
@@ -132,12 +142,23 @@ void AVMEnemyBoss::OnHealHp(float HealGauge)
 	CurrentHp = FMath::Clamp<float>(CurrentHp + HealGauge, 0, MaxHp);
 }
 
+void AVMEnemyBoss::SaveAllSpawner()
+{
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), TEXT("Spawner"), FoundActors);
+
+	Spawners = FoundActors;
+	UE_LOG(LogTemp, Log, TEXT("Spawners:%d"), Spawners.Num());
+}
+
 // Called when the game starts or when spawned
 void AVMEnemyBoss::BeginPlay()
 {
 	Super::BeginPlay();
 	
 	Tags.Add("Enemy");
+
+	SaveAllSpawner();
 }
 
 // Called every frame

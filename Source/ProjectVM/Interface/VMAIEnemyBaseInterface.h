@@ -25,9 +25,14 @@ class PROJECTVM_API IVMAIEnemyBaseInterface
 #pragma region 인터페이스_함수
 public:
 	// Enemy가 필수적으로 구현해야할 함수를 선언.
-	virtual float GetAIPatrolRadius() = 0;
-	virtual float GetAIDetectRange() = 0;
-	virtual float GetAIAttackRange() = 0;
-	virtual float GetAITurnSpeed() = 0;
+	virtual float GetAIMoveSpeed() const = 0;
+	virtual float GetAIAttackRange() const = 0;
+	virtual float GetAITurnSpeed() const = 0;
+	virtual float GetAIAttackRadius() const = 0;
+	virtual float GetAINormalAttackDamage() const = 0;
+	virtual float GetAIAttackSpeed() const = 0;
+
+	virtual void NormalAttack() = 0;
+	virtual void NormalAttackCheck() = 0;
 #pragma endregion
 };

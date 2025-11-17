@@ -167,26 +167,6 @@ void AVMAllyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 }
 
-float AVMAllyBase::GetAIPatrolRadius()
-{
-	return 0.0f;
-}
-
-float AVMAllyBase::GetAIDetectRange()
-{
-	return 0.0f;
-}
-
-float AVMAllyBase::GetAIAttackRange()
-{
-	return 0.0f;
-}
-
-float AVMAllyBase::GetAITurnSpeed()
-{
-	return 0.0f;
-}
-
 void AVMAllyBase::HealOwnerHp()
 {
 	AActor* OwnerActor = GetOwnerTarget();

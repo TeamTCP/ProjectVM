@@ -69,4 +69,10 @@ public:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Anim, meta = (AllowPrivateAccess = true))
 	TArray<TSubclassOf<class AVMEnemySpawnBase>> EnemySpawnArray;
+
+
+	void SaveAllSpawner();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Anim, meta = (AllowPrivateAccess = true))
+	TArray<class AActor*> Spawners;
 };

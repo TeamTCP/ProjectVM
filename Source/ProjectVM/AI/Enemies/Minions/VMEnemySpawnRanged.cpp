@@ -3,6 +3,9 @@
 
 #include "AI/Enemies/Minions/VMEnemySpawnRanged.h"
 
+#include "Projectile/VMStraightProjectile.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+
 AVMEnemySpawnRanged::AVMEnemySpawnRanged()
 {
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -88));
@@ -33,10 +36,42 @@ AVMEnemySpawnRanged::AVMEnemySpawnRanged()
 		AIControllerClass = AIControllerClassRef.Class;
 	}
 #pragma endregion
+
+	ConstructorHelpers::FObjectFinder<UAnimMontage> NormalAttackMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Project/Animation/VM_RangeAttackDefault.VM_RangeAttackDefault'"));
+	if (NormalAttackMontageRef.Object)
+	{
+		NormalAttackMontage = NormalAttackMontageRef.Object;
+	}
+
+	MoveSpeed = 200.0f;
+	AttackSpeed = 1.0f;
+	AttackRange = 1000.0f;
+	TurnSpeed = 2.0f;
 }
 
 void AVMEnemySpawnRanged::BeginPlay()
 {
 	Super::BeginPlay();
 	SetMonsterType(EMonsterName::MinionRanged);
+}
+
+void AVMEnemySpawnRanged::NormalAttack()
+{
+	UE_LOG(LogTemp, Log, TEXT("AVMEnemySpawnRanged::NormalAttack"));
+	Super::NormalAttack();
+
+	FVector Location = GetActorLocation();
+	FVector SpawnLocation = Location + GetActorForwardVector() * 100.0f;
+	FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
+
+	AVMStraightProjectile* Projectile = GetWorld()->SpawnActor<AVMStraightProjectile>(AVMStraightProjectile::StaticClass(), SpawnTransform);
+	if (Projectile == nullptr)
+	{
+		return;
+	}
+
+	Projectile->SetMaxSpeed(1000.0f);
+	Projectile->SetVelocity(1000.0f);
+
+	UE_LOG(LogTemp, Display, TEXT("Ranged가 발사한 Projectile을 생성하였습니다."));
 }
