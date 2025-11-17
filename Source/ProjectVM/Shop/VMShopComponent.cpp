@@ -3,6 +3,9 @@
 #include "Game/VMRPGPlayerController.h"
 #include "UI/Shop/VMShopScreen.h"
 #include "Core/VMLoadManager.h"
+#include "Item/Equipment/VMEquipment.h"
+#include "Item/Equipment/VMEquipmentInfo.h"
+#include "Item/ItemFactorySubsystem.h"
 
 UVMShopComponent::UVMShopComponent()
 {
@@ -23,7 +26,33 @@ void UVMShopComponent::SetShop()
 		UE_LOG(LogTemp, Log, TEXT("ShopScreen is not found"));
 		return;
 	}
-	ShopScreen->SetShop(ShopItems);
+	ShopScreen->SetShopData(TestMoney, TestInventoryCurrentCapacity, TestInventoryMaxCapacity, this);
+	ShopScreen->SetBuyMode();
+}
+
+void UVMShopComponent::SetTestInventory()
+{
+	//Todo: 인벤토리 기능 구현 되기 전 테스트를 위한 더미데이터 세팅 함수
+
+	for (int i = 0; i < TestInventoryCurrentCapacity; ++i)
+	{
+		UVMEquipment* Equipment = GetOwner()->GetGameInstance()->GetSubsystem<UItemFactorySubsystem>()->CreateRandomBaseEquipment();
+
+		InventoryItems.Add(Equipment);
+	}
+}
+
+void UVMShopComponent::AddInventoryItem(UVMEquipment* NewItem)
+{
+	if (NewItem == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AddInventoryItem: NewItem is nullptr"));
+		return;
+	}
+
+	InventoryItems.Add(NewItem);
+
+	UE_LOG(LogTemp, Log, TEXT("Item added to InventoryItems: %s"), *NewItem->GetName());
 }
 
 void UVMShopComponent::BeginPlay()
@@ -35,6 +64,8 @@ void UVMShopComponent::BeginPlay()
 	{
 		AddShopItem(i);
 	}
+
+	SetTestInventory();
 }
 
 void UVMShopComponent::AddShopItem(int32 ItemNum)

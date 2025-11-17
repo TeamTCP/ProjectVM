@@ -5,8 +5,14 @@
 #include "UI/Shop/VMShopItemDataObject.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
+#include "Components/Button.h"
 #include "Materials/MaterialInterface.h" 
 #include "Materials/MaterialInstanceDynamic.h"  
+#include "Components/ListView.h"
+
+#define LOG_POS(Format, ...) \
+    UE_LOG(LogTemp, Log, TEXT("%s(%d): " Format), \
+    ANSI_TO_TCHAR(__FILE__), __LINE__, ##__VA_ARGS__)
 
 void UVMShopListViewEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
@@ -14,6 +20,12 @@ void UVMShopListViewEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 
 	if (ShopItemDataObject == nullptr)
 	{
+		return;
+	}
+
+	if (ShopItemDataObject->EquipmentInfo == nullptr)
+	{
+		LOG_POS("아직 초기화 안됨");
 		return;
 	}
 
@@ -51,8 +63,25 @@ void UVMShopListViewEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 	ChangeItemCount();
 }
 
+void UVMShopListViewEntry::NativeConstruct()
+{
+	if (ItemButton != nullptr)
+	{
+		ItemButton->OnClicked.AddDynamic(this, &UVMShopListViewEntry::OnListButtonClicked);
+	}
+}
+
 void UVMShopListViewEntry::ChangeItemCount()
 {
+	if (ShopItemDataObject->CurrentCount <= 0)
+	{
+		UListView* List = Cast<UListView>(GetOwningListView());
+		if (List)
+		{
+			List->RemoveItem(ShopItemDataObject);
+		}
+	}
+
 	if (ItemCountText != nullptr)
 	{
 		ItemCountText->SetText(FText::AsNumber(ShopItemDataObject->CurrentCount));
@@ -62,4 +91,14 @@ void UVMShopListViewEntry::ChangeItemCount()
 		int NowMoney = ShopItemDataObject->CurrentCount * ShopItemDataObject->EquipmentInfo->ItemLevel * 2000;
 		ItemAllPriceText->SetText(FText::AsNumber(NowMoney));
 	}
+}
+
+void UVMShopListViewEntry::OnListButtonClicked()
+{
+	if (ShopItemDataObject == nullptr)
+	{	
+		LOG_POS("ShopItemDataObject is nullptr");
+		return;
+	}
+	ShopItemDataObject->ChangeItemCount(false);
 }

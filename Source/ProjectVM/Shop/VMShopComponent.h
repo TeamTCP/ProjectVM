@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Item/Equipment/VMEquipment.h"
 #include "Item/Equipment/VMEquipmentInfo.h"
 #include "VMShopComponent.generated.h"
 
@@ -15,7 +16,34 @@ public:
 	UVMShopComponent();
 
 	void SetShop();
-	
+	void SetTestInventory();
+
+	//getter
+	FORCEINLINE const TArray<FVMEquipmentInfo>& GetShopItems() const
+	{
+		return ShopItems;
+	}
+	FORCEINLINE const TArray<UVMEquipment*>& GetInventoryItems() const
+	{
+		return InventoryItems;
+	}
+
+	FORCEINLINE void SetTestValues(int32 InMoney, int32 InCurrentCapacity, int32 InMaxCapacity)
+	{
+		TestMoney = InMoney;
+		TestInventoryCurrentCapacity = InCurrentCapacity;
+		TestInventoryMaxCapacity = InMaxCapacity;
+	}
+
+	//구매시 인벤토리에 아이템 추가하는 함수
+	void AddInventoryItem(UVMEquipment* NewItem);
+
+	//판매시 인벤토리에 아이템을 지우는 함수
+	FORCEINLINE void RemoveInventoryItem(int32 index)
+	{
+		InventoryItems.RemoveAt(index);
+	}
+
 protected:
 	virtual void BeginPlay() override;
 	
@@ -31,5 +59,10 @@ private:
 	TArray<struct FVMEquipmentInfo> ShopItems;
 
 	UPROPERTY()
-	TArray<struct FVMEquipmentInfo> InventoryItems;
+	TArray<class UVMEquipment*> InventoryItems;
+
+	//Todo: 나중에 인벤토리 붙이면 바꿔야함
+	int32 TestMoney = 200000;
+	int32 TestInventoryCurrentCapacity = 20;
+	int32 TestInventoryMaxCapacity = 50;
 };

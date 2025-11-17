@@ -8,9 +8,6 @@
 #include "Blueprint/IUserObjectListEntry.h"
 #include "VMShopListViewEntry.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class PROJECTVM_API UVMShopListViewEntry : public UUserWidget, public IUserObjectListEntry
 {
@@ -18,9 +15,14 @@ class PROJECTVM_API UVMShopListViewEntry : public UUserWidget, public IUserObjec
 public:
 	//리스트뷰가 데이터를 연결할 때 마다 호출됨
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
+	virtual void NativeConstruct() override;
 
 	UFUNCTION()
 	void ChangeItemCount();
+
+private:
+	UFUNCTION()
+	void OnListButtonClicked();
 public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UImage> ItemImage;
