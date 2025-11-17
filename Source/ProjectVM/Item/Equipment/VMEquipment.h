@@ -37,7 +37,7 @@ public:
 
 
 	void EquipEffect(class AVMCharacterHeroBase* Owner);
-	FORCEINLINE FVMEquipmentInfo GetEquipmentInfo() { return EquipmentInfo; };
+	FORCEINLINE FVMEquipmentInfo& GetEquipmentInfo() { return EquipmentInfo; };
 
 public:
 	UPROPERTY()
