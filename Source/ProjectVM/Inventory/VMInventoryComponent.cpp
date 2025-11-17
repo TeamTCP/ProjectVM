@@ -70,6 +70,8 @@ FItemAddResult UVMInventoryComponent::HandleAddItem(UVMEquipment* InputItem)
 
 void UVMInventoryComponent::RemoveSingleInstanceOfItem(UVMEquipment* ItemToRemove)
 { 
+	InventoryContents.RemoveSingle(ItemToRemove);
+	OnInventoryUpdated.Broadcast();
 }
 
 int32 UVMInventoryComponent::RemoveAmountOfItem(UVMEquipment* ItemIn, int32 DesiredAmountToRemove)
@@ -79,6 +81,11 @@ int32 UVMInventoryComponent::RemoveAmountOfItem(UVMEquipment* ItemIn, int32 Desi
 
 void UVMInventoryComponent::SplitExistingStack(UVMEquipment* ItemIn, const int32 AmountToSplit)
 {
+	if (!(InventoryContents.Num() + 1 > 20))
+	{
+		RemoveAmountOfItem(ItemIn, AmountToSplit);
+		AddNewItem(ItemIn, AmountToSplit);
+	}
 }
 
 
