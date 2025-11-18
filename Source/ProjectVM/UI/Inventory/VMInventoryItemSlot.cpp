@@ -181,7 +181,7 @@ void UVMInventoryItemSlot::SetUp(const FVMEquipmentInfo& Info)
 
 void UVMInventoryItemSlot::RefreshFromItem()
 {
-	UE_LOG(LogTemp, Warning, TEXT("RefreshFromItem: ENTER"));
+	/*UE_LOG(LogTemp, Warning, TEXT("RefreshFromItem: ENTER"));
 
 	// 1) 위젯 바인딩이 제대로 되었는지 확인
 	if (!ItemBorder)
@@ -202,7 +202,7 @@ void UVMInventoryItemSlot::RefreshFromItem()
 	const FVMEquipmentInfo& Info = ItemReference->GetEquipmentInfo();
 
 	// 테두리 색 (일단 회색으로 고정, 나중에 등급별 색상 적용 가능)
-	ItemBorder->SetBrushColor(FLinearColor::Gray);
+	ItemBorder->SetBrushColor(FLinearColor::Gray);*/
 
 	// 4) 아이콘 세팅
 	/*if (Info.Icon)
@@ -217,6 +217,25 @@ void UVMInventoryItemSlot::RefreshFromItem()
 		UE_LOG(LogTemp, Warning, TEXT("RefreshFromItem: Icon is NULL for %s"),
 			*Info.ItemName);
 	}*/
+	UE_LOG(LogTemp, Warning, TEXT("RefreshFromItem: ENTER"));
+
+	if (!ItemIcon || !ItemBorder)
+		return;
+
+	if (!ItemReference)
+	{
+		// 비어 있는 상태 표현
+		ItemIcon->SetBrushFromTexture(nullptr);
+		ItemBorder->SetBrushColor(FLinearColor::White); // 혹은 연한 색
+		return;
+	}
+
+	const FVMEquipmentInfo& Info = ItemReference->GetEquipmentInfo();
+
+	if (Info.Icon)
+	{
+		ItemIcon->SetBrushFromTexture(Info.Icon);
+	}
 
 }
 

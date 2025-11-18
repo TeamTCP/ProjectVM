@@ -22,6 +22,8 @@
 #include "UI/Character/VMCharacterHeroHUD.h"
 #include "Inventory/VMPickup.h"
 #include "Inventory/VMInventoryComponent.h"
+#include "UI/Inventory/VMInventoryPanel.h"
+#include "UI/Inventory/VMEquipmentPanel.h"
 
 #include "Components/PawnNoiseEmitterComponent.h"
 
@@ -569,7 +571,7 @@ void AVMCharacterHeroBase::BeginInteract()
 	}
 }
 
-/*void AVMCharacterHeroBase::EndInteract()
+void AVMCharacterHeroBase::EndInteract()
 {
 	GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
 
@@ -588,7 +590,7 @@ void AVMCharacterHeroBase::BeingInteract()
 		TargetInteractable->BeingInteract(this);
 	}
 }
-*/
+
 
 void AVMCharacterHeroBase::UpdateInteractionWidget() const
 {
@@ -636,13 +638,46 @@ void AVMCharacterHeroBase::ToggleMenu()
 
 void AVMCharacterHeroBase::ToggleInventory(const FInputActionValue& Value)
 {
-	AVMRPGPlayerController* PC = Cast<AVMRPGPlayerController>(GetController());
-	if (!PC) return;
+	// 1) 먼저 멤버 HUD 가 세팅되어 있는지 확인
+	if (!HUD)
+	{
+		if (APlayerController* PC = Cast<APlayerController>(GetController()))
+		{
+			HUD = PC->GetHUD<AVMCharacterHeroHUD>();
+		}
+	}
 
-	if (bInventoryIsOpen)
-		PC->CloseInventory();
+	if (!HUD || !HUD->InventoryPanel)
+		return;
+
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC)
+		return;
+
+	const bool bVisible = HUD->InventoryPanel->IsVisible();
+
+	if (bVisible)
+	{
+		HUD->InventoryPanel->SetVisibility(ESlateVisibility::Collapsed);
+		if (HUD->EquipmentPanel)
+		{
+			HUD->EquipmentPanel->SetVisibility(ESlateVisibility::Collapsed);
+		}
+
+		PC->SetInputMode(FInputModeGameOnly());
+		PC->bShowMouseCursor = false;
+	}
 	else
-		PC->OpenInventory();
+	{
+		HUD->InventoryPanel->SetVisibility(ESlateVisibility::Visible);
+		if (HUD->EquipmentPanel)
+		{
+			HUD->EquipmentPanel->SetVisibility(ESlateVisibility::Visible);
+		}
+
+		PC->SetInputMode(FInputModeGameAndUI());
+		PC->bShowMouseCursor = true;
+	}
 }
 
 void AVMCharacterHeroBase::EquipFromInventory(UVMEquipment* Item)

@@ -94,8 +94,8 @@ protected:
 	void FoundInteractable(AActor* NewInteractable);
 	void NoInteractableFound();
 	void BeginInteract();
-	/*void EndInteract();
-	void BeingInteract();*/
+	void EndInteract();
+	void BeingInteract();
 	void ToggleMenu();
 
 
@@ -117,6 +117,12 @@ public:
 
 	UFUNCTION()
 	void EquipFromInventory(UVMEquipment* Item);
+
+	UPROPERTY()
+	TObjectPtr<AVMCharacterHeroHUD> HUD;
+
+	UFUNCTION(BlueprintCallable, Category = "Equipment")
+	UVMEquipment* GetEquippedWeapon() const { return EquippedWeapon; }
 
 	// 장비에 따른 스탯 갱신 함수
 	void RecalculateStatsFromEquipment();
@@ -188,8 +194,7 @@ protected:
 	//UVMInventoryComponent* PlayerInventory;
 	TObjectPtr<UVMInventoryComponent> PlayerInventory;
 
-	UPROPERTY()
-	TObjectPtr<AVMCharacterHeroHUD> HUD;
+	
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> ToggleAction;
