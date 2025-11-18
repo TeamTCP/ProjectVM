@@ -89,6 +89,21 @@ void UVMInventoryComponent::SplitExistingStack(UVMEquipment* ItemIn, const int32
 	}
 }
 
+void UVMInventoryComponent::RemoveItem(UVMEquipment* Item)
+{
+	if (!Item)
+		return;
+
+	int32 Index = InventoryContents.Find(Item);
+	if (Index != INDEX_NONE)
+	{
+		InventoryContents.RemoveAt(Index);
+
+		UE_LOG(LogTemp, Warning, TEXT("InventoryComponent: Removed %s from inventory"),
+			*Item->GetEquipmentInfo().ItemName);
+	}
+}
+
 
 FItemAddResult UVMInventoryComponent::HandleNonStackableItems(UVMEquipment* InputItem)
 {
