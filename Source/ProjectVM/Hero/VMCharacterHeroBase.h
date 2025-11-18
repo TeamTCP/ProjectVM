@@ -62,6 +62,7 @@ public:
 	void UpdateInteractionWidget() const;
 	void DropItem(UVMEquipment* ItemToDrop, const int32 QuantityToDrop);
 
+	void SetCurrentNPC(AVMNPC* NewNPC);
 protected:
 	virtual void BeginPlay() override;
 	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

@@ -23,23 +23,23 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UFUNCTION()
-	void OnInteractTriggerOverlapBegin(
-		UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex,
-		bool bFromSweep,
-		const FHitResult& SweepResult
-	);
+	//UFUNCTION()
+	//void OnInteractTriggerOverlapBegin(
+	//	UPrimitiveComponent* OverlappedComponent,
+	//	AActor* OtherActor,
+	//	UPrimitiveComponent* OtherComp,
+	//	int32 OtherBodyIndex,
+	//	bool bFromSweep,
+	//	const FHitResult& SweepResult
+	//);
 
-	UFUNCTION()
-	void OnInteractTriggerOverlapEnd(
-		UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex
-	);
+	//UFUNCTION()
+	//void OnInteractTriggerOverlapEnd(
+	//	UPrimitiveComponent* OverlappedComponent,
+	//	AActor* OtherActor,
+	//	UPrimitiveComponent* OtherComp,
+	//	int32 OtherBodyIndex
+	//);
 
 	virtual void Interact() override;
 	bool NextDialogue();
@@ -97,7 +97,7 @@ protected:
 	//class UBoxComponent* InteractKeyBoxComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
-	class UInteractComponent* InteractComponent;
+	TObjectPtr<class UInteractComponent> InteractComponent;
 
 	//대화 데이터 포인터로 저장
 	TArray<struct FVMNPCTalkData*> DialogueTexts;

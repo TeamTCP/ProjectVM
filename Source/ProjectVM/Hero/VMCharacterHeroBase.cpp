@@ -529,6 +529,11 @@ void AVMCharacterHeroBase::DropItem(UVMEquipment* ItemToDrop, const int32 Quanti
 	}
 }
 
+void AVMCharacterHeroBase::SetCurrentNPC(AVMNPC* NewNPC)
+{
+	CurrentNPC = NewNPC;
+}
+
 void AVMCharacterHeroBase::ToggleMenu()
 {
 	UE_LOG(LogTemp, Log, TEXT("QWER "));

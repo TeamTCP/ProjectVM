@@ -207,27 +207,27 @@ void AVMNPC::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
-void AVMNPC::OnInteractTriggerOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (AVMCharacterHeroBase* Player = Cast<AVMCharacterHeroBase>(OtherActor))
-	{
-		UE_LOG(LogTemp, Log, TEXT("Overlapped with Player: %s"), *Player->GetName());
-		InteractKey->SetVisibility(true);
-		Player->SetInteractNPC(this);
-	}
-}
-
-void AVMNPC::OnInteractTriggerOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	//만약 NPC가 붙어있어서 여러 NPC가 활성화 된 상태라면 하나만 선택된다. 바로 옆으로 이동하면 nullptr로 설정하기 때문에 다른 NPC가 실행되지는 않는다.
-	//일단 NPC를 붙어서 만들지는 않을 예정이르모 이렇게 처리한다.
-	if (AVMCharacterHeroBase* Player = Cast<AVMCharacterHeroBase>(OtherActor))
-	{
-		UE_LOG(LogTemp, Log, TEXT("Exit with Player: %s"), *Player->GetName());
-		InteractKey->SetVisibility(false);
-		Player->SetInteractNPC(nullptr);
-	}
-}
+//void AVMNPC::OnInteractTriggerOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+//{
+//	if (AVMCharacterHeroBase* Player = Cast<AVMCharacterHeroBase>(OtherActor))
+//	{
+//		UE_LOG(LogTemp, Log, TEXT("Overlapped with Player: %s"), *Player->GetName());
+//		InteractKey->SetVisibility(true);
+//		Player->SetInteractNPC(this);
+//	}
+//}
+//
+//void AVMNPC::OnInteractTriggerOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+//{
+//	//만약 NPC가 붙어있어서 여러 NPC가 활성화 된 상태라면 하나만 선택된다. 바로 옆으로 이동하면 nullptr로 설정하기 때문에 다른 NPC가 실행되지는 않는다.
+//	//일단 NPC를 붙어서 만들지는 않을 예정이르모 이렇게 처리한다.
+//	if (AVMCharacterHeroBase* Player = Cast<AVMCharacterHeroBase>(OtherActor))
+//	{
+//		UE_LOG(LogTemp, Log, TEXT("Exit with Player: %s"), *Player->GetName());
+//		InteractKey->SetVisibility(false);
+//		Player->SetInteractNPC(nullptr);
+//	}
+//}
 
 void AVMNPC::Interact()
 {
@@ -249,7 +249,7 @@ void AVMNPC::Interact()
 		return;
 	}
 	HeroBase->ChangeInputMode(EInputMode::Dialogue);
-
+	HeroBase->SetCurrentNPC(this);
 	UVMNPCDialogueScreen* Dialogue = Cast<UVMNPCDialogueScreen>(PC->GetScreen(EScreenUIType::DialogueScreen));
 	if (Dialogue == nullptr)
 	{
