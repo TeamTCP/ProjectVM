@@ -17,6 +17,7 @@
 
 #include "NPC/VMNPC.h"
 #include "Quest/VMQuestManager.h"
+#include "Core/InteractionManager.h"
 
 #include "UI/Character/VMCharacterHeroHUD.h"
 #include "Inventory/VMPickup.h"
@@ -316,17 +317,30 @@ void AVMCharacterHeroBase::UltimateSkill(const FInputActionValue& Value)
 
 void AVMCharacterHeroBase::Interact(const FInputActionValue& Value)
 {
-	if (CurrentNPC != nullptr)
+	UGameInstance* GI = GetGameInstance();
+	if (GI == nullptr)
 	{
-		UE_LOG(LogTemp, Log, TEXT("input E, show ui : %s"), *CurrentNPC->GetName());
-		CurrentNPC->Interact();
+		UE_LOG(LogTemp, Log, TEXT("GameInstance is nullptr"));
+	}
 
-		ChangeInputMode(EInputMode::Dialogue);
-	}
-	else
+	UInteractionManager* InteractionManager = GI->GetSubsystem<UInteractionManager>();
+	if (InteractionManager == nullptr)
 	{
-		UE_LOG(LogTemp, Log, TEXT("input E, cannot interact"));
+		UE_LOG(LogTemp, Log, TEXT("Interaction Manager is nullptr"));
+		return;
 	}
+
+	InteractionManager->Interact();
+	//if (CurrentNPC != nullptr)
+	//{
+	//	UE_LOG(LogTemp, Log, TEXT("input E, show ui : %s"), *CurrentNPC->GetName());
+	//	CurrentNPC->Interact();
+	//	ChangeInputMode(EInputMode::Dialogue);
+	//}
+	//else
+	//{
+	//	UE_LOG(LogTemp, Log, TEXT("input E, cannot interact"));
+	//}
 }
 
 void AVMCharacterHeroBase::NextTalk(const FInputActionValue& Value)

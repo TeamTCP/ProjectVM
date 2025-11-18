@@ -22,6 +22,7 @@
 #include "Blueprint/UserWidget.h"
 #include "UI/Quest/VMQuestTracker.h"
 #include "UI/Quest/VMQuestDataObject.h"
+#include "Core/InteractComponent.h"
 
 // Sets default values
 AVMNPC::AVMNPC()
@@ -46,10 +47,10 @@ AVMNPC::AVMNPC()
 	Billboard = CreateDefaultSubobject<UVMBillboardComponent>(TEXT("BillboardComponent"));
 	Billboard->SetupAttachment(RootComponent);
 
-	InteractKeyBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractTrigger"));
-	InteractKeyBoxComponent->SetupAttachment(GetCapsuleComponent());
-	InteractKeyBoxComponent->SetBoxExtent(FVector(70.0f, 70.0f, 100.0f));
-	InteractKeyBoxComponent->SetCollisionProfileName(TEXT("InteractTrigger"));
+	//InteractKeyBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractTrigger"));
+	//InteractKeyBoxComponent->SetupAttachment(GetCapsuleComponent());
+	//InteractKeyBoxComponent->SetBoxExtent(FVector(70.0f, 70.0f, 100.0f));
+	//InteractKeyBoxComponent->SetCollisionProfileName(TEXT("InteractTrigger"));
 
 	InteractKey = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractKeyWidget"));
 	InteractKey->SetupAttachment(Billboard);
@@ -76,6 +77,8 @@ AVMNPC::AVMNPC()
 	CameraBoom->SetRelativeRotation(FRotator(-20.0f, 130.0f, 0.0f));
 	CameraBoom->TargetArmLength = 500.f;
 
+	InteractComponent = CreateDefaultSubobject<UInteractComponent>(TEXT("InteractComponent"));
+	InteractComponent->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -93,8 +96,8 @@ void AVMNPC::BeginPlay()
 		NPCData = *LoadedData; // 포인터 → 값 복사
 	}
 
-	InteractKeyBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &AVMNPC::OnInteractTriggerOverlapBegin);
-	InteractKeyBoxComponent->OnComponentEndOverlap.AddDynamic(this, &AVMNPC::OnInteractTriggerOverlapEnd);
+	//InteractKeyBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &AVMNPC::OnInteractTriggerOverlapBegin);
+	//InteractKeyBoxComponent->OnComponentEndOverlap.AddDynamic(this, &AVMNPC::OnInteractTriggerOverlapEnd);
 	InteractKey->SetVisibility(false);
 
 	//퀘스트 매니저 구독
@@ -235,12 +238,25 @@ void AVMNPC::OnInteractTriggerOverlapEnd(UPrimitiveComponent* OverlappedComponen
 
 void AVMNPC::Interact()
 {
-	UE_LOG(LogTemp, Log, TEXT("Interact Quest"));
+	UE_LOG(LogTemp, Log, TEXT("Interact"));
+
 	AVMRPGPlayerController* PC = Cast<AVMRPGPlayerController>(GetWorld()->GetFirstPlayerController());
 	if (PC == nullptr)
 	{
 		return;
 	}
+	APawn* PlayerPawn = PC->GetPawn();
+	if (PlayerPawn == nullptr)
+	{
+		return;
+	}
+	AVMCharacterHeroBase* HeroBase = Cast<AVMCharacterHeroBase>(PlayerPawn);
+	if (HeroBase == nullptr)
+	{
+		return;
+	}
+	HeroBase->ChangeInputMode(EInputMode::Dialogue);
+
 	UVMNPCDialogueScreen* Dialogue = Cast<UVMNPCDialogueScreen>(PC->GetScreen(EScreenUIType::DialogueScreen));
 	if (Dialogue == nullptr)
 	{

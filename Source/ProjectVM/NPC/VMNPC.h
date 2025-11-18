@@ -6,10 +6,11 @@
 #include "GameFramework/Character.h"
 #include "VMNPCEnums.h"
 #include "GameData/VMNPCData.h"
+#include "Core/VMInteractableInterface.h"
 #include "VMNPC.generated.h"
 
 UCLASS()
-class PROJECTVM_API AVMNPC : public ACharacter
+class PROJECTVM_API AVMNPC : public ACharacter, public IVMInteractableInterface
 {
 	GENERATED_BODY()
 
@@ -40,7 +41,7 @@ public:
 		int32 OtherBodyIndex
 	);
 
-	virtual void Interact();
+	virtual void Interact() override;
 	bool NextDialogue();
 
 	//옵션 호출 함수
@@ -91,13 +92,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
 	FName NPCId;
+	
+	//UPROPERTY(VisibleAnywhere)
+	//class UBoxComponent* InteractKeyBoxComponent;
 
-	UPROPERTY(VisibleAnywhere)
-	class UBoxComponent* InteractKeyBoxComponent;
-
-	//대화 위젯
-	//class UVMNPCDialogueScreen* VMNPCDialogue;
-	//TSubclassOf<class UVMNPCDialogueScreen> VMNPCDialogueClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interact")
+	class UInteractComponent* InteractComponent;
 
 	//대화 데이터 포인터로 저장
 	TArray<struct FVMNPCTalkData*> DialogueTexts;
