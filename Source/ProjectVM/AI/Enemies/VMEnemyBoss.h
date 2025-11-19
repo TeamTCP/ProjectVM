@@ -7,13 +7,17 @@
 
 #include "Interface/VMSummonInterface.h"
 #include "Interface/EnemyHealInterface.h"
+#include "Interface/VMStatChangeable.h"
 
 #include "VMEnemyBoss.generated.h"
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FHealthPointPercentageHandler, float /* HPPercentage */);
 
 UCLASS()
 class PROJECTVM_API AVMEnemyBoss : public ACharacter
 	//, public IVMSummonInterface
 	, public IEnemyHealInterface
+	, public IVMStatChangeable
 {
 	GENERATED_BODY()
 
@@ -60,7 +64,10 @@ public:
 	float MaxHp = 200;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat, Meta = (AllowPrivateAccess = true))
-	float CurrentHp = 1;
+	float CurrentHp = 200;
+
+
+	virtual void HealthPointChange(float Amount, AActor* Causer) override;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Anim, meta = (AllowPrivateAccess = true))
@@ -70,9 +77,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Anim, meta = (AllowPrivateAccess = true))
 	TArray<TSubclassOf<class AVMEnemySpawnBase>> EnemySpawnArray;
 
+	 
+public:
+	FHealthPointPercentageHandler OnHealthPointPercentageChanged;
 
 	void SaveAllSpawner();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Anim, meta = (AllowPrivateAccess = true))
 	TArray<class AActor*> Spawners;
+
+public:
+	void ClearDelegate();
 };

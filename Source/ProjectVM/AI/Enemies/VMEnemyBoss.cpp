@@ -13,6 +13,8 @@
 
 #include "Kismet/GameplayStatics.h"
 
+#include "Macro/VMPhysics.h"
+
 // Sets default values
 AVMEnemyBoss::AVMEnemyBoss()
 {
@@ -36,6 +38,7 @@ AVMEnemyBoss::AVMEnemyBoss()
 void AVMEnemyBoss::InitDefaultSetting()
 {
 	// 기본 세팅
+	GetCapsuleComponent()->SetCollisionProfileName(VM_ENEMY_COLLISION);
 	GetCapsuleComponent()->SetCapsuleHalfHeight(130.0f);
 	GetCapsuleComponent()->SetCapsuleRadius(50.0f);
 	GetCapsuleComponent()->SetLineThickness(1.0f);
@@ -142,6 +145,19 @@ void AVMEnemyBoss::OnHealHp(float HealGauge)
 	CurrentHp = FMath::Clamp<float>(CurrentHp + HealGauge, 0, MaxHp);
 }
 
+void AVMEnemyBoss::HealthPointChange(float Amount, AActor* Causer)
+{
+	if (Causer == nullptr)
+	{
+		return; 
+	}
+
+	CurrentHp -= Amount;
+	UE_LOG(LogTemp, Log, TEXT("여기 들어오긴 하니?"));
+
+	OnHealthPointPercentageChanged.Broadcast(CurrentHp / MaxHp);
+}
+
 void AVMEnemyBoss::SaveAllSpawner()
 {
 	TArray<AActor*> FoundActors;
@@ -150,6 +166,8 @@ void AVMEnemyBoss::SaveAllSpawner()
 	Spawners = FoundActors;
 	UE_LOG(LogTemp, Log, TEXT("Spawners:%d"), Spawners.Num());
 }
+
+
 
 // Called when the game starts or when spawned
 void AVMEnemyBoss::BeginPlay()
@@ -199,3 +217,9 @@ void AVMEnemyBoss::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 //		UE_LOG(LogTemp, Log, TEXT("소환 몬스터"));
 //	}
 //}
+
+
+void AVMEnemyBoss::ClearDelegate()
+{
+	OnHealthPointPercentageChanged.RemoveAll(this);
+}
