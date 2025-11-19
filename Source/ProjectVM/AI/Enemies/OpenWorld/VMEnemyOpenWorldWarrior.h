@@ -16,4 +16,6 @@ class PROJECTVM_API AVMEnemyOpenWorldWarrior : public AVMEnemyBase
 	
 public:
 	AVMEnemyOpenWorldWarrior();
+
+	virtual void HealthPointChange(float Amount, AActor* Causer) override;
 };

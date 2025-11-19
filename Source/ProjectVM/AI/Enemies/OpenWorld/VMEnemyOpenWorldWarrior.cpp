@@ -8,6 +8,8 @@
 
 #include "Macro/VMPhysics.h"
 
+#include "Item/VMItemCube.h"
+
 AVMEnemyOpenWorldWarrior::AVMEnemyOpenWorldWarrior()
 {
 #pragma region AI_OpenWorldWarriorAIController
@@ -47,4 +49,22 @@ AVMEnemyOpenWorldWarrior::AVMEnemyOpenWorldWarrior()
 		NormalAttackMontage = NormalAttackMontageRef.Object;
 	}
 #pragma endregion
+}
+
+void AVMEnemyOpenWorldWarrior::HealthPointChange(float Amount, AActor* Causer)
+{
+	UE_LOG(LogTemp, Log, TEXT("AVMEnemyBase::HealthPointChange Damage:%f Causer: %s"), Amount, *Causer->GetName());
+
+	SetCurrentHp(FMath::Clamp<float>(GetCurrentHp() - Amount, 0, GetMaxHp()));
+
+	if (GetCurrentHp() < KINDA_SMALL_NUMBER)
+	{
+		UE_LOG(LogTemp, Log, TEXT("몬스터가 죽었습니다"));
+		TSubclassOf<AVMItemCube> ActorToSpawn = AVMItemCube::StaticClass();
+		FVector SpawnLocation = GetActorLocation();
+		FRotator SpawnRotation = GetActorRotation();
+		AVMItemCube* SpawnedActor = GetWorld()->SpawnActor<AVMItemCube>(ActorToSpawn, SpawnLocation, SpawnRotation);
+
+		Destroy();
+	}
 }

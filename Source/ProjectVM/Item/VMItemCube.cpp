@@ -27,6 +27,7 @@ AVMItemCube::AVMItemCube()
     ItemCube = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemCube"));
     ItemCube->SetupAttachment(RootComponent);
     ItemCube->SetRelativeLocation(FVector(0.0f, 0.0f, -50.f));
+    ItemCube->SetRelativeScale3D(FVector(0.5f, 0.5f, 0.5f));
 
     // 기본 메시 설정 (예: 큐브)
     static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMeshRef(TEXT("/Game/Project/Item/ItemCube.ItemCube"));
