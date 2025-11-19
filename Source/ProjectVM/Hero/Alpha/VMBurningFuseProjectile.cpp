@@ -1,11 +1,9 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Hero/Alpha/VMBurningFuseProjectile.h"
 #include "Components/SphereComponent.h"
 #include "Interface/VMStatChangeable.h"
 
-#include "Components/SplineComponent.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 
@@ -36,43 +34,12 @@ AVMBurningFuseProjectile::AVMBurningFuseProjectile()
 	{
 		ProjectileEffect->SetAsset(ProjectileNiagaraSystemAsset.Object);
 	}
-
-	/*
-	SplinePath = CreateDefaultSubobject<USplineComponent>(TEXT("SplinePath"));
-	SplinePath->SetupAttachment(RootComponent);
-	SplinePath->ClearSplinePoints();
-	SplinePath->bDrawDebug = true;
-
-	BurningFuseEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("BurningFuseEffect"));
-	BurningFuseEffect->SetupAttachment(SplinePath);
-	BurningFuseEffect->SetAutoActivate(true);
-	BurningFuseEffect->SetAutoDestroy(false);
-
-	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> BurningFuseNiagaraSystemAsset(TEXT("/Game/_SplineVFX/NS/NS_Spline_Fire.NS_Spline_Fire"));
-	if (BurningFuseNiagaraSystemAsset.Succeeded())
-	{
-		BurningFuseEffect->SetAsset(BurningFuseNiagaraSystemAsset.Object);
-
-		BurningFuseEffect->SetVariableBool(TEXT("_AdaptTerrain"), false);
-		BurningFuseEffect->SetVariableFloat(TEXT("_Brightness"), 3.0f);
-		BurningFuseEffect->SetVariableFloat(TEXT("_ColorHue"), 0.0f);
-		BurningFuseEffect->SetVariableFloat(TEXT("_Size"), 40.0f);
-		BurningFuseEffect->SetVariableBool(TEXT("AddDetail"), true);
-		BurningFuseEffect->SetVariableFloat(TEXT("Count(Density)"), 10.0f);
-		BurningFuseEffect->SetVariableBool(TEXT("DecalON"), true);
-		BurningFuseEffect->SetVariableFloat(TEXT("Extent"), 0.05f);
-		BurningFuseEffect->SetVariableBool(TEXT("LightNo"), true);
-		BurningFuseEffect->SetVariableBool(TEXT("Not_Type_A_But_B"), false);
-		BurningFuseEffect->SetVariableFloat(TEXT("Progress"), 2.0f);
-		BurningFuseEffect->SetVariableFloat(TEXT("Z_Decal_Threshold"), 150.0f);
-	}*/
 	
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	ProjectileMovement->ProjectileGravityScale = 0.0f;
 	ProjectileMovement->InitialSpeed = 1000.0f;
 	ProjectileMovement->MaxSpeed = 2000.0f;
 	
-	SplinePathProgress = 0.0f;
 	DestroyProgress = 0.0f;
 }
 
@@ -132,20 +99,3 @@ void AVMBurningFuseProjectile::DestroyProjectile()
 {
 	Destroy();
 }
-
-/*void AVMBurningFuseProjectile::AddProjectilePath()
-{
-	FHitResult HitResult;
-	FVector Start = GetActorLocation();
-	FVector End = Start - FVector(0.f, 0.f, 10000.f);
-	
-	bool Hit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_WorldStatic);
-
-	if (Hit)
-	{
-		SplinePath->AddSplinePoint(HitResult.Location, ESplineCoordinateSpace::World);
-		SplinePath->SetSplinePointType(SplinePath->GetNumberOfSplinePoints(), ESplinePointType::Linear);	
-		SplinePath->UpdateSpline();
-	}
-}*/
-

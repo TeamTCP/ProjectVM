@@ -24,8 +24,6 @@ protected:
 
 	void DestroyProjectile();
 
-	// void AddProjectilePath();
-
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Projectile, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USphereComponent> SphereCollision;
@@ -41,9 +39,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Projectile, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UProjectileMovementComponent> ProjectileMovement;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Projectile, meta = (AllowPrivateAccess = "true"))
-	float SplinePathProgress;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Projectile, meta = (AllowPrivateAccess = "true"))
 	float DestroyProgress;
