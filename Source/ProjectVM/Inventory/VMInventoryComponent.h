@@ -116,8 +116,11 @@ public:
 	//FORCEINLINE int32 GetSlotCapacity() const { return InventorySlotsCapacity; };
 
 	UFUNCTION(Category = "Inventory")
-	FORCEINLINE TArray<UVMEquipment*> GetInventoryContents() const { return InventoryContents; };
-
+	TArray<UVMEquipment*>& GetInventoryContents() { return InventoryContents; };
+	//TArray<TObjectPtr<UVMEquipment>>& GetInventoryContents()
+	//{
+	//	return InventoryContents;
+	//}
 	//// Setter
 	//UFUNCTION(Category = "Inventory")
 	//FORCEINLINE void SetSlotsCapacity(const int32 NewSlotsCapacity) { InventorySlotsCapacity = NewSlotsCapacity; };
@@ -135,7 +138,7 @@ protected:
 
 protected:	
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
-	TArray<TObjectPtr<UVMEquipment>> InventoryContents;
+	TArray<UVMEquipment*> InventoryContents;
 
 	
 

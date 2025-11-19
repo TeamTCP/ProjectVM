@@ -40,7 +40,7 @@ UVMEquipment* UVMInventoryComponent::FindNextItemByID(UVMEquipment* ItemIn) cons
 {
 	if (ItemIn)
 	{
-		if (const TArray<TObjectPtr<UVMEquipment>>::ElementType* Result = InventoryContents.FindByKey(ItemIn))
+		if (const TArray<UVMEquipment*>::ElementType* Result = InventoryContents.FindByKey(ItemIn))
 		{
 			return *Result;
 		}
