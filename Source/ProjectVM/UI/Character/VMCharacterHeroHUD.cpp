@@ -5,6 +5,7 @@
 #include "UI/Inventory/VMInteractionWidget.h"
 #include "UI/Inventory/VMMainMenu.h"
 #include "UI/Inventory/VMInventoryPanel.h"
+#include "UI/Inventory/VMEquipmentPanel.h"
 
 AVMCharacterHeroHUD::AVMCharacterHeroHUD()
 {
@@ -14,6 +15,13 @@ AVMCharacterHeroHUD::AVMCharacterHeroHUD()
 void AVMCharacterHeroHUD::BeginPlay()
 {
 	Super::BeginPlay();
+
+	APlayerController* PC = GetOwningPlayerController();
+
+	UE_LOG(LogTemp, Warning, TEXT("HeroHUD::BeginPlay called"));
+	UE_LOG(LogTemp, Warning, TEXT("HeroHUD: InventoryPanelClass = %s, EquipmentPanelClass = %s"),
+		InventoryPanelClass ? *InventoryPanelClass->GetName() : TEXT("NULL"),
+		EquipmentPanelClass ? *EquipmentPanelClass->GetName() : TEXT("NULL"));
 
 	UE_LOG(LogTemp, Log, TEXT("QWER MainMenuClass 확인 전"));
 	if (MainMenuClass)
@@ -31,17 +39,33 @@ void AVMCharacterHeroHUD::BeginPlay()
 		InteractionWidget->SetVisibility(ESlateVisibility::Collapsed);
 	}
 
-
-	if (InventoryPanelClass)
+	// 인벤토리 패널
+	if (InventoryPanelClass && PC)
 	{
-		InventoryPanel = CreateWidget<UVMInventoryPanel>(GetWorld(), InventoryPanelClass);
+		InventoryPanel = CreateWidget<UVMInventoryPanel>(PC, InventoryPanelClass);
 		if (InventoryPanel)
 		{
-			InventoryPanel->AddToViewport();
-			// 처음에는 숨겨두고 싶으면 여기서 SetVisibility(Collapsed) 같은 것도 가능
+			UE_LOG(LogTemp, Warning, TEXT("HeroHUD: InventoryPanel created: %s"), *InventoryPanel->GetName());
+			InventoryPanel->AddToViewport(0);
+			InventoryPanel->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
 
+	// 장비 패널
+	if (EquipmentPanelClass && PC)
+	{
+		EquipmentPanel = CreateWidget<UVMEquipmentPanel>(PC, EquipmentPanelClass);
+		if (EquipmentPanel)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("HeroHUD: EquipmentPanel created: %s"), *EquipmentPanel->GetName());
+			EquipmentPanel->AddToViewport(0);
+			EquipmentPanel->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("HeroHUD: EquipmentPanelClass is NULL or PC is NULL"));
+	}
 }
 
 

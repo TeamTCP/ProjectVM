@@ -30,8 +30,20 @@ public:
 
 	bool bIsMenuVisible;
 
+	// 실제 인스턴스
+	UPROPERTY(BlueprintReadWrite, Category = "UI")
+	UVMInventoryPanel* InventoryPanel;
+
+
+	UPROPERTY(BlueprintReadWrite, Category = "UI")
+	UVMEquipmentPanel* EquipmentPanel;
+
+
 	UFUNCTION(BlueprintCallable)
 	UVMInventoryPanel* GetInventoryPanel() const { return InventoryPanel; }
+
+	UFUNCTION(BlueprintCallable)
+	UVMEquipmentPanel* GetEquipmentPanel() const { return EquipmentPanel; }
 
 public:
 	AVMCharacterHeroHUD();
@@ -52,12 +64,14 @@ protected:
 	UVMInteractionWidget* InteractionWidget;
 
 	// UMG 클래스 지정용
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UVMInventoryPanel> InventoryPanelClass;
 
-	// 실제 인스턴스
-	UPROPERTY()
-	UVMInventoryPanel* InventoryPanel;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UVMEquipmentPanel> EquipmentPanelClass;
+
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UVMEquipmentPanel> EquipmentPanelClass;

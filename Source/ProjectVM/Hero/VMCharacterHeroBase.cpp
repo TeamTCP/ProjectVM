@@ -22,6 +22,8 @@
 #include "UI/Character/VMCharacterHeroHUD.h"
 #include "Inventory/VMPickup.h"
 #include "Inventory/VMInventoryComponent.h"
+#include "UI/Inventory/VMInventoryPanel.h"
+#include "UI/Inventory/VMEquipmentPanel.h"
 
 #include "Components/PawnNoiseEmitterComponent.h"
 
@@ -639,13 +641,87 @@ void AVMCharacterHeroBase::ToggleMenu()
 
 void AVMCharacterHeroBase::ToggleInventory(const FInputActionValue& Value)
 {
-	AVMRPGPlayerController* PC = Cast<AVMRPGPlayerController>(GetController());
-	if (!PC) return;
+	// 1) 먼저 멤버 HUD 가 세팅되어 있는지 확인
+	if (!HUD)
+	{
+		if (APlayerController* PC = Cast<APlayerController>(GetController()))
+		{
+			HUD = PC->GetHUD<AVMCharacterHeroHUD>();
+		}
+	}
 
-	if (bInventoryIsOpen)
-		PC->CloseInventory();
+	if (!HUD || !HUD->InventoryPanel)
+		return;
+
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC)
+		return;
+
+	const bool bVisible = HUD->InventoryPanel->IsVisible();
+
+	if (bVisible)
+	{
+		HUD->InventoryPanel->SetVisibility(ESlateVisibility::Collapsed);
+		if (HUD->EquipmentPanel)
+		{
+			HUD->EquipmentPanel->SetVisibility(ESlateVisibility::Collapsed);
+		}
+
+		PC->SetInputMode(FInputModeGameOnly());
+		PC->bShowMouseCursor = false;
+	}
 	else
-		PC->OpenInventory();
+	{
+		HUD->InventoryPanel->SetVisibility(ESlateVisibility::Visible);
+		if (HUD->EquipmentPanel)
+		{
+			HUD->EquipmentPanel->SetVisibility(ESlateVisibility::Visible);
+		}
+
+		PC->SetInputMode(FInputModeGameAndUI());
+		PC->bShowMouseCursor = true;
+	}
+}
+
+void AVMCharacterHeroBase::EquipFromInventory(UVMEquipment* Item)
+{
+	if (!Item)
+	{
+		return;
+	}
+
+	const FVMEquipmentInfo& Info = Item->GetEquipmentInfo();
+    UE_LOG(LogTemp, Warning, TEXT("장비 장착: %s"), *Info.ItemName);
+
+    // 기존 장비 능력치 제거
+    if (EquippedWeapon)
+    {
+        RemoveEquipmentStats(EquippedWeapon->GetEquipmentInfo());
+    }
+
+    // 새 장비 장착
+    EquippedWeapon = Item;
+	
+	RecalculateStatsFromEquipment();
+
+
+}
+
+void AVMCharacterHeroBase::RecalculateStatsFromEquipment()
+{
+	int32 NewAttack = 0;
+
+	if (EquippedWeapon)
+	{
+		const FVMEquipmentInfo& Info = EquippedWeapon->GetEquipmentInfo();
+		NewAttack += Info.AttackPower;
+	}
+
+	CurrentAttack = NewAttack;
+
+	UE_LOG(LogTemp, Warning, TEXT("RecalculateStats: Atk=%d"), CurrentAttack);
+
+
 }
 
 void AVMCharacterHeroBase::EquipFromInventory(UVMEquipment* Item)

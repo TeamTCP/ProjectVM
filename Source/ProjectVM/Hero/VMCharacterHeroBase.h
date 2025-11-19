@@ -219,8 +219,7 @@ protected:
 	//UVMInventoryComponent* PlayerInventory;
 	TObjectPtr<UVMInventoryComponent> PlayerInventory;
 
-	UPROPERTY()
-	TObjectPtr<AVMCharacterHeroHUD> HUD;
+	
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> ToggleAction;
