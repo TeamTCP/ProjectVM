@@ -62,7 +62,6 @@ bool UBTDecorator_AttackRange::CalculateRawConditionValue(UBehaviorTreeComponent
 	// Target이 null이면 함수 종료.
 	if (Target == nullptr)
 	{
-		UE_LOG(LogTemp, Log, TEXT("내가 null인가5"));
 		return false;
 	}
 

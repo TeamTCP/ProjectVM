@@ -90,8 +90,6 @@ void AVMEnemySpawnBase::NormalAttack()
 
 void AVMEnemySpawnBase::NormalAttackCheck()
 {
-	UE_LOG(LogTemp, Log, TEXT("AVMEnemySpawnBase::NormalAttackCheck"));
-
 	FHitResult OutHitResult;
 	TArray<FHitResult> HitResults;
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(LaserAttack), false, this);

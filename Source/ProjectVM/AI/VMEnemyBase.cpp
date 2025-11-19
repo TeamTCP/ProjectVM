@@ -313,6 +313,37 @@ void AVMEnemyBase::NormalAttack()
 
 void AVMEnemyBase::NormalAttackCheck()
 {
+	FHitResult OutHitResult;
+	TArray<FHitResult> HitResults;
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(LaserAttack), false, this);
+
+
+	float AttackRange_ = GetAIAttackRange();
+	float AttackRadius_ = GetAIAttackRadius();
+	float AttackDamage_ = GetAINormalAttackDamage();
+
+	const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
+	const FVector End = Start + GetActorForwardVector() * AttackRange_;
+
+	bool Result = GetWorld()->SweepMultiByChannel(HitResults, Start, End, FQuat::Identity, VM_HERO_TARGET_ACTION, FCollisionShape::MakeSphere(AttackRadius_), Params);
+	if (Result || HitResults.Num())
+	{
+		for (auto HitResult : HitResults)
+		{
+			FDamageEvent DamageEvent;
+			IVMStatChangeable* IVMStatPtr = Cast<IVMStatChangeable>(HitResult.GetActor());
+			if (IVMStatPtr)
+			{
+				IVMStatPtr->HealthPointChange(AttackRange_, this);
+			}
+			UE_LOG(LogTemp, Log, TEXT("Name: %s"), *HitResult.GetActor()->GetName());
+		}
+	}
+
+	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
+	float CapsuleHalfHeight = AttackRange_ * 0.5f;
+	FColor Color = Result ? FColor::Green : FColor::Red;
+	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius_, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), Color, false, 5.0f);
 }
 
 #pragma endregion
@@ -412,9 +443,7 @@ void AVMEnemyBase::OnSeePawn(APawn* Pawn)
 	//UE_LOG(LogTemp, Log, TEXT("AVMEnemyBase::OnSeePawn : %s"), *Pawn->GetName());
 	EnemyTarget = Pawn;
 
-	MakeNoise(1.0f, this, GetActorLocation());
-
-	DrawDebugSphere(GetWorld(), GetActorLocation(), 100.f, 16, FColor::Blue, false, 2.0f);
+	TryMakeNoise();
 
 	if (AAIController* AIController = Cast<AAIController>(GetController()))
 	{
@@ -423,23 +452,6 @@ void AVMEnemyBase::OnSeePawn(APawn* Pawn)
 			BBComp->SetValueAsObject(TEXT("EnemyTarget"), EnemyTarget);
 		}
 	}
-	/*MemoryTimers.Invalidate();
-
-	GetWorld()->GetTimerManager().SetTimer(MemoryTimers, [this]()
-		{
-			if (IsValid(this))
-			{
-				AAIController* AIController = Cast<AAIController>(GetController());
-				if (AIController != nullptr)
-				{
-					UBlackboardComponent* BBComp = AIController->GetBlackboardComponent();
-					if (BBComp != nullptr)
-					{
-						BBComp->SetValueAsObject(TEXT("EnemyTarget"), nullptr);
-					}
-				}
-			}
-		}, 10, false);*/
 }
 
 void AVMEnemyBase::OnHearPawn(APawn* InstigatorPawn, const FVector& Location, float Volume)
@@ -466,31 +478,7 @@ void AVMEnemyBase::OnHearPawn(APawn* InstigatorPawn, const FVector& Location, fl
 		{
 			BBComp->SetValueAsObject(TEXT("EnemyTarget"), OtherEnemyBase->EnemyTarget);
 		}
-	}
-
-	/*MemoryTimers.Invalidate();
-
-	GetWorld()->GetTimerManager().SetTimer(MemoryTimers, [this]()
-		{
-			if (IsValid(this))
-			{
-				AAIController* AIController = Cast<AAIController>(GetController());
-				if (AIController != nullptr)
-				{
-					UBlackboardComponent* BBComp = AIController->GetBlackboardComponent();
-					if (BBComp != nullptr)
-					{
-						BBComp->SetValueAsObject(TEXT("EnemyTarget"), nullptr);
-					}
-				}
-			}
-		}, 10, false);*/
-	/*UE_LOG(LogTemp, Warning, TEXT("Heard noise from %s at %s, volume %.2f"),
-		*InstigatorPawn->GetName(),
-		*Location.ToString(),
-		Volume);*/
-
-	
+	}	
 }
 
 void AVMEnemyBase::TryMakeNoise()
@@ -505,12 +493,12 @@ void AVMEnemyBase::TryMakeNoise()
 	// 실제 소리 발생
 	MakeNoise(1.0f, this, GetActorLocation());
 
-	// 10초 후 다시 소리 가능
+	// 5초 후 다시 소리 가능
 	GetWorld()->GetTimerManager().SetTimer(
 		SoundTimers,
 		this,
 		&AVMEnemyBase::ResetSoundCooldown,
-		1.0f,
+		5.0f,
 		false
 	);
 	DrawDebugSphere(GetWorld(), GetActorLocation(), 100.f, 16, FColor::Blue, false, 2.0f);

@@ -38,6 +38,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CloseInventory();
 
+	// 보스
+	UFUNCTION(BlueprintCallable)
+	void ShowBossStatusWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void HideBossStatusWidget();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -71,4 +78,10 @@ protected:
 	UPROPERTY()
 	UVMInventoryPanel* InventoryPanel;
 
+
+	// 보스
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
+	TSubclassOf<class UVMHeroStatusWidget> VMBossStatusWidgetClass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HUD")
+	TObjectPtr<class UVMHeroStatusWidget> VMBossStatusWidget;
 };
