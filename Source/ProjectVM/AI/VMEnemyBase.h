@@ -120,6 +120,10 @@ public:
 	FTimerHandle MemoryTimers;
 	FTimerHandle SoundTimers;
 
+public:
+	FString SectionNamePrefix = TEXT("Attack");
+	int32 CurrentSectionIndex = 1;
+
 
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	//float NoiseInterval;
