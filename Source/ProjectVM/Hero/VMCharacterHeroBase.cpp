@@ -330,11 +330,6 @@ void AVMCharacterHeroBase::Die()
 	UE_LOG(LogTemp, Log, TEXT("Die : 테스트"));
 	CurState = EHeroState::Dead;
 	
-	if (APlayerController* PlayerController	= Cast<APlayerController>(GetController()))
-	{
-		DisableInput(PlayerController);
-	}
-	
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	OnHeroDeath.Broadcast();

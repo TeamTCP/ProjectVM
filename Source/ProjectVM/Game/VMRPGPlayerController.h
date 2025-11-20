@@ -45,6 +45,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HideBossStatusWidget();
 
+	void ResetInputSystem();
+	void ShowGameOverUI();
+
 protected:
 	virtual void BeginPlay() override;
 

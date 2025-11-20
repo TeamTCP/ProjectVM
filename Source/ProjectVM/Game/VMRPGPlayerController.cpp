@@ -137,6 +137,21 @@ void AVMRPGPlayerController::HideBossStatusWidget()
 	
 }
 
+void AVMRPGPlayerController::ResetInputSystem()
+{
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+
+	if (Subsystem)
+	{
+		Subsystem->ClearAllMappings();
+	}
+}
+
+void AVMRPGPlayerController::ShowGameOverUI()
+{
+}
+
+
 void AVMRPGPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
