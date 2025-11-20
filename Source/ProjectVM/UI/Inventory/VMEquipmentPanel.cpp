@@ -3,6 +3,7 @@
 
 #include "UI/Inventory/VMEquipmentPanel.h"
 #include "UI/Inventory/VMEquipmentItemSlot.h"
+#include "UI/Inventory/VMInventoryItemSlot.h"
 #include "Inventory/VMInventoryComponent.h"
 
 #include "Components/UniformGridPanel.h"
@@ -26,40 +27,54 @@ void UVMEquipmentPanel::NativeConstruct()
     WeaponSlots.Add(Weapon_Slot5);
 
     // 시작은 전부 빈칸
-    for (UVMEquipmentItemSlot* EquipSlot : WeaponSlots)
+    for (UVMInventoryItemSlot* EquipSlot : WeaponSlots)
     {
         if (EquipSlot)
         {
-            EquipSlot->SetItem(nullptr);
+            EquipSlot->ClearItem();
         }
     }
 }
 
 int32 UVMEquipmentPanel::TryEquipToEmptySlot(UVMEquipment* Item)
 {
-
-    if (!Item) return false;
+    if (!Item) return INDEX_NONE;
 
     for (int32 i = 0; i < WeaponSlots.Num(); ++i)
     {
-        UVMEquipmentItemSlot* EquipSlot = WeaponSlots[i];
+        UVMInventoryItemSlot* EquipSlot = WeaponSlots[i];
         if (!EquipSlot)
-        {
-            UE_LOG(LogTemp, Warning, TEXT("Equipment Fail"));
             continue;
-        }
 
-    
-
-        if (EquipSlot->GetItem() == nullptr)
+        if (EquipSlot->GetItemReference() == nullptr)
         {
-            UE_LOG(LogTemp, Warning, TEXT("EquipmentPanel: Equip to slot %d"), i);
-            EquipSlot->SetItem(Item);
-            return true;
+            UE_LOG(LogTemp, Warning,
+                TEXT("EquipmentPanel: Equip to slot %d (SlotWidget=%s)"),
+                i, *EquipSlot->GetName());
+
+            EquipSlot->SetItemReference(Item);   // ★ 이거 하나만 해야 함
+
+            return i;
         }
     }
 
     UE_LOG(LogTemp, Warning, TEXT("EquipmentPanel: No free equipment slot"));
-    return false;
+    return INDEX_NONE;
+
+}
+
+void UVMEquipmentPanel::ClearItem()
+{
+    for (UVMInventoryItemSlot* EquipSlot : WeaponSlots)
+    {
+        if (EquipSlot)
+        {
+            EquipSlot->ClearItem();  // 이제는 브러시 안 지우니까 이대로 사용 가능
+        }
+    }
+}
+
+void UVMEquipmentPanel::RefreshFromItem()
+{
 
 }

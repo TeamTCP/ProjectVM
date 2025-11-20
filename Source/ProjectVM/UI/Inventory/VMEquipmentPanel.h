@@ -5,13 +5,14 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Hero/VMCharacterHeroBase.h"
-#include "UI/Inventory/VMInventoryItemSlot.h"
 #include "VMEquipmentPanel.generated.h"
 
 
 class UUniformGridPanel;
 class UVMEquipment;
+class UVMEquipmentInfo;
 class UVMEquipmentItemSlot;
+class UVMInventoryItemSlot;
 
 
 /**
@@ -35,32 +36,41 @@ public:
 
     // 코드에서 다루기 쉽게 배열로 묶어두기
     UPROPERTY()
-    TArray<UVMEquipmentItemSlot*> WeaponSlots;
+    TArray<TObjectPtr<UVMInventoryItemSlot>> WeaponSlots;
 
     UPROPERTY(EditAnywhere)
     TSubclassOf<UVMEquipmentItemSlot> SlotClass;
 
+    UPROPERTY(VisibleAnywhere, Category = "Equipment Slot")
+    TObjectPtr<UVMEquipment> ItemReference;
+
     //UPROPERTY()
     //UVMEquipmentItemSlot* Slot;
 
+    UFUNCTION(BlueprintCallable, Category = "Inventory")
+    UVMEquipment* GetItem() const { return ItemReference; }
+
+    UFUNCTION(BlueprintCallable, Category = "Inventory")
+    void ClearItem();
+ 
+    void RefreshFromItem();
 
 
 protected:
     // WBP 안의 6개 슬롯 바인딩
     UPROPERTY(meta = (BindWidget)) 
-    TObjectPtr<UVMEquipmentItemSlot> Weapon_Slot0;
+    TObjectPtr<UVMInventoryItemSlot> Weapon_Slot0;
     UPROPERTY(meta = (BindWidget)) 
-    TObjectPtr<UVMEquipmentItemSlot> Weapon_Slot1;
+    TObjectPtr<UVMInventoryItemSlot> Weapon_Slot1;
     UPROPERTY(meta = (BindWidget)) 
-    TObjectPtr<UVMEquipmentItemSlot> Weapon_Slot2;
+    TObjectPtr<UVMInventoryItemSlot> Weapon_Slot2;
     UPROPERTY(meta = (BindWidget)) 
-    TObjectPtr<UVMEquipmentItemSlot> Weapon_Slot3;
+    TObjectPtr<UVMInventoryItemSlot> Weapon_Slot3;
     UPROPERTY(meta = (BindWidget)) 
-    TObjectPtr<UVMEquipmentItemSlot> Weapon_Slot4;
+    TObjectPtr<UVMInventoryItemSlot> Weapon_Slot4;
     UPROPERTY(meta = (BindWidget)) 
-    TObjectPtr<UVMEquipmentItemSlot> Weapon_Slot5;
+    TObjectPtr<UVMInventoryItemSlot> Weapon_Slot5;
 
-    
    
     // 각 슬롯에 실제 어떤 아이템이 들어있는지
     UPROPERTY()

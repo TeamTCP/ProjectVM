@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Item/Equipment/VMEquipment.h"
+#include "Item/Equipment/VMEquipmentInfo.h"
 #include "VMEquipmentItemSlot.generated.h"
 
 class UVMEquipmnet;
@@ -32,22 +33,27 @@ public:
     void ClearItem();
 
 public:
-    UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UImage> ItemIcon;
 
     UPROPERTY(VisibleAnywhere, Category = "Equipment Slot")
     TObjectPtr<UVMEquipment> ItemReference;
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UImage> ItemIcon;
 
-    UPROPERTY(meta = (BindWidgetOptional))
+    UPROPERTY(meta = (BindWidget))
     TObjectPtr<UBorder> ItemBorder;
 
     UPROPERTY()
     TObjectPtr<UMaterialInstanceDynamic> ItemMaterialInstance;
 
-    void SetUp(const FVMEquipmentInfo& Info);
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemIcon")
+    TObjectPtr<UMaterialInterface> AtlasMaterial;
 
-protected:
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemIcon")
+    TObjectPtr<UMaterialInterface> ItemIconBaseMaterial;
+
+    //void SetUp(const FVMEquipmentInfo& Info);
+
     virtual void NativeConstruct() override;
-
     void RefreshFromItem();
+
 };

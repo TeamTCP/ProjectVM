@@ -29,7 +29,7 @@ class PROJECTVM_API UVMInventoryItemSlot : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	UVMEquipment* GetItemReference() const { return ItemReference; }
 
 
@@ -40,6 +40,10 @@ public:
 	//TObjectPtr<UTextBlock> ItemQuantity;
 
 	void RefreshFromItem();
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void ClearItem();
+	
 
 	virtual void NativeOnInitialized() override;
 	virtual void NativeConstruct() override;
@@ -67,6 +71,10 @@ public:
 
 	UPROPERTY()
 	TObjectPtr<class UMaterialInstanceDynamic> ItemMaterialInstance;
+
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ItemIcon")
+	TObjectPtr<UMaterialInterface> AtlasMaterial;
 
 	// 더블 클릭 델리게이트 (패널에서 바인딩)
 	UPROPERTY(BlueprintAssignable, Category = "Inventory")

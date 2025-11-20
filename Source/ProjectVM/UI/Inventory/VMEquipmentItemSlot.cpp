@@ -14,35 +14,42 @@
 void UVMEquipmentItemSlot::NativeConstruct()
 {
     Super::NativeConstruct();
-    UE_LOG(LogTemp, Log, TEXT("Test1"));
-    ItemReference = nullptr;
 
-    if (ItemIcon)
+    UE_LOG(LogTemp, Warning,
+        TEXT("EquipmentItemSlot::NativeConstruct %s, AtlasMaterial=%s"),
+        *GetName(),
+        *GetNameSafe(AtlasMaterial));
+
+    if (ItemBorder)
     {
-        UE_LOG(LogTemp, Log, TEXT("Test2"));
-        ItemMaterialInstance = ItemIcon->GetDynamicMaterial();
+        ItemBorder->SetBrushColor(FLinearColor::Transparent);
     }
-    UE_LOG(LogTemp, Log, TEXT("Test3"));
-    RefreshFromItem();
 
-    //if (ItemIcon)
-    //{
-    //    ItemMaterialInstance = ItemIcon->GetDynamicMaterial();
-    //}
-    //RefreshFromItem();
+    // Atlas 머터리얼에서 MID 생성
+    if (ItemIcon && AtlasMaterial)
+    {
+        ItemMaterialInstance = UMaterialInstanceDynamic::Create(AtlasMaterial, this);
+        ItemIcon->SetBrushFromMaterial(ItemMaterialInstance);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning,
+            TEXT("EquipmentItemSlot::NativeConstruct AtlasMaterial or ItemIcon is NULL"));
+    }
+
+    // 시작은 숨김
+    if (ItemIcon)  ItemIcon->SetVisibility(ESlateVisibility::Hidden);
+    if (ItemBorder) ItemBorder->SetVisibility(ESlateVisibility::Hidden);
+
 }
 
 void UVMEquipmentItemSlot::SetItem(UVMEquipment* InItem)
 {
-   ItemReference = InItem;
 
-    const TCHAR* NameForLog = TEXT("NULL");
-    if (ItemReference)
-    {
-        NameForLog = *ItemReference->GetEquipmentInfo().ItemName;
-    }
-    UE_LOG(LogTemp, Warning, TEXT("EquipSlot::SetItemReference called, Item: %s"), NameForLog);
+    UE_LOG(LogTemp, Warning, TEXT("EquipSlot::SetItem called, Item: %s"),
+        InItem ? *InItem->GetEquipmentInfo().ItemName : TEXT("NULL"));
 
+    ItemReference = InItem;
     RefreshFromItem();
 }
 
@@ -54,59 +61,46 @@ void UVMEquipmentItemSlot::ClearItem()
 
 void UVMEquipmentItemSlot::RefreshFromItem()
 {
-    UE_LOG(LogTemp, Log, TEXT("Refresh1"));
+    UE_LOG(LogTemp, Warning,
+        TEXT("EquipmentItemSlot::RefreshFromItem ENTER, AtlasMaterial=%s, MID=%s"),
+        *GetNameSafe(AtlasMaterial),
+        *GetNameSafe(ItemMaterialInstance));
 
     if (!ItemIcon || !ItemBorder)
         return;
-    UE_LOG(LogTemp, Log, TEXT("Refresh2"));
+
+    // 아이템 없으면 숨기기
     if (!ItemReference)
     {
-        //ItemIcon->SetBrushFromTexture(nullptr);
-        //ItemBorder->SetBrushColor(FLinearColor::White);
+        ItemIcon->SetVisibility(ESlateVisibility::Hidden);
+        ItemBorder->SetVisibility(ESlateVisibility::Hidden);
         return;
     }
 
     const FVMEquipmentInfo& Info = ItemReference->GetEquipmentInfo();
 
-    //if (Info.Icon)
-    //{
-    //    ItemIcon->SetBrushFromTexture(Info.Icon);
-    //}
-    UE_LOG(LogTemp, Log, TEXT("Refresh3 : %s"), *Info.ItemName);
-    SetUp(Info);
-    //else
-    //{
-    //    ItemIcon->SetBrushFromTexture(nullptr);
-    //}
-}
+    // 혹시라도 MID 날아갔으면 다시 생성
+    if (!ItemMaterialInstance && AtlasMaterial)
+    {
+        ItemMaterialInstance = UMaterialInstanceDynamic::Create(AtlasMaterial, this);
+        ItemIcon->SetBrushFromMaterial(ItemMaterialInstance);
+    }
 
-void UVMEquipmentItemSlot::SetUp(const FVMEquipmentInfo& Info)
-{
-    // 다이나믹 머터리얼 생성
-    if (ItemIcon == nullptr)
-    {
-        UE_LOG(LogTemp, Log, TEXT("ItemIcon is nullptr"));
-        return;
-    }
-    if (ItemIcon->GetBrush().GetResourceObject())
-    {
-        UMaterialInterface* BaseMat = Cast<UMaterialInterface>(ItemIcon->GetBrush().GetResourceObject());
-        if (BaseMat != nullptr)
-        {
-            ItemMaterialInstance = UMaterialInstanceDynamic::Create(BaseMat, this);
-            ItemIcon->SetBrushFromMaterial(ItemMaterialInstance);
-        }
-    }
-    else
-    {
-        UE_LOG(LogTemp, Log, TEXT("ItemIcon->GetBrush().GetResourceObject() is nullptr"));
-        return;
-    }
-    //머터리얼 파라미터 설정
     if (ItemMaterialInstance)
     {
+        UE_LOG(LogTemp, Warning,
+            TEXT("EquipmentItemSlot::Set Params Col=%d Row=%d"),
+            Info.AtlasCol, Info.AtlasRow);
+
         ItemMaterialInstance->SetScalarParameterValue(TEXT("ColumnIndex"), Info.AtlasCol);
         ItemMaterialInstance->SetScalarParameterValue(TEXT("RowIndex"), Info.AtlasRow);
     }
+    else
+    {
+        UE_LOG(LogTemp, Warning,
+            TEXT("EquipmentItemSlot::RefreshFromItem ItemMaterialInstance is STILL NULL"));
+    }
 
+    ItemIcon->SetVisibility(ESlateVisibility::Visible);
+    ItemBorder->SetVisibility(ESlateVisibility::Visible);
 }
