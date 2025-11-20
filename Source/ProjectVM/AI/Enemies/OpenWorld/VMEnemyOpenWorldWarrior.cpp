@@ -9,6 +9,7 @@
 #include "Macro/VMPhysics.h"
 
 #include "Item/VMItemCube.h"
+#include "Quest/VMQuestManager.h"
 
 AVMEnemyOpenWorldWarrior::AVMEnemyOpenWorldWarrior()
 {
@@ -64,7 +65,7 @@ void AVMEnemyOpenWorldWarrior::HealthPointChange(float Amount, AActor* Causer)
 		FVector SpawnLocation = GetActorLocation();
 		FRotator SpawnRotation = GetActorRotation();
 		AVMItemCube* SpawnedActor = GetWorld()->SpawnActor<AVMItemCube>(ActorToSpawn, SpawnLocation, SpawnRotation);
-
+		GetGameInstance()->GetSubsystem<UVMQuestManager>()->NotifyMonsterDeath(MonsterName);
 		Destroy();
 	}
 }

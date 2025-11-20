@@ -1,5 +1,6 @@
-
+﻿
 #include "Portal/VMFieldPortal.h"
+#include "Core/VMLevelManager.h"
 
 AVMFieldPortal::AVMFieldPortal()
 {
@@ -11,4 +12,6 @@ void AVMFieldPortal::Interact()
 	Super::Interact();
 
 	TeleportPlayerToMap();
+	UVMLevelManager* LevelManager = GetGameInstance()->GetSubsystem<UVMLevelManager>();
+	LevelManager->DeleteLevel(DeleteLevelName);
 }

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AI/VMEnemyBase.h"
+#include "Core/VMMonsterEnums.h"
 #include "VMEnemyOpenWorldWarrior.generated.h"
 
 /**
@@ -18,4 +19,7 @@ public:
 	AVMEnemyOpenWorldWarrior();
 
 	virtual void HealthPointChange(float Amount, AActor* Causer) override;
+
+protected:
+	EMonsterName MonsterName = EMonsterName::Warrior;
 };
