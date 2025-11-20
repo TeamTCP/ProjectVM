@@ -27,6 +27,12 @@ AVMAOETargetBomb::AVMAOETargetBomb()
 	// Mesh
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(RootComponent);
+
+	ConstructorHelpers::FObjectFinder<UStaticMesh>MeshRef(TEXT("/Script/Engine.StaticMesh'/Game/StarterContent/Shapes/Shape_Sphere.Shape_Sphere'"));
+	if (MeshRef.Object)
+	{
+		Mesh->SetStaticMesh(MeshRef.Object);
+	}
 }
 
 // Called when the game starts or when spawned
