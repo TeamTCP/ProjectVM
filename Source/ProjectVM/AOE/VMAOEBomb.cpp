@@ -60,6 +60,7 @@ void AVMAOEBomb::BeginPlay()
 {
 	Super::BeginPlay();
 	
+    ExplosionTime = FMath::RandRange(2.0, 5.0);
 }
 
 // Called every frame
@@ -79,7 +80,7 @@ void AVMAOEBomb::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimit
     UE_LOG(LogTemp, Log, TEXT("%f %f %f"), Hit.Location.X, Hit.Location.Y, Hit.Location.Z);
     flag = true;
 
-    GetWorld()->GetTimerManager().SetTimer(ExplosionTimerHandle, this, &AVMAOEBomb::Explode, 3.f, false);
+    GetWorld()->GetTimerManager().SetTimer(ExplosionTimerHandle, this, &AVMAOEBomb::Explode, ExplosionTime, false);
 
     
     // 충돌 이후 더 이상 Physics 충돌 적용 안 하게 선택 가능
@@ -106,7 +107,7 @@ void AVMAOEBomb::Explode()
         UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionSound, ExplosionLocation);
     }
 
-    // 2️⃣ 범위 내 Actor 찾기
+    // 범위 내 Actor 찾기
     TArray<FOverlapResult> Overlaps;
     FCollisionShape Sphere = FCollisionShape::MakeSphere(Radius);
 

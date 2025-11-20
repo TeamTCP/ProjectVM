@@ -81,7 +81,7 @@ void AVMAOEHeal::ProcessHeal()
 {
 	for (auto Actor : InnerActorArray)
 	{
-		AVMEnemySpawnBase* EnemySpawnBase = Cast<AVMEnemySpawnBase>(Actor);
+		IEnemyHealInterface* EnemySpawnBase = Cast<IEnemyHealInterface>(Actor);
 		if (EnemySpawnBase == nullptr)
 		{
 			continue;
