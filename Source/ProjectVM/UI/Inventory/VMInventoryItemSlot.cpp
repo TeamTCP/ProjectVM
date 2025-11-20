@@ -25,11 +25,21 @@ void UVMInventoryItemSlot::NativeOnInitialized()
 		ToolTip->InventorySlotBeingHovered = this;
 		SetToolTip(ToolTip);
 	}
+
+	ItemReference = nullptr;
+	RefreshFromItem();
 }
 
 void UVMInventoryItemSlot::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	UE_LOG(LogTemp, Warning,
+		TEXT("InventorySlot::NativeConstruct %s Icon=%p Border=%p"),
+		*GetName(),
+		ItemIcon.Get(),
+		ItemBorder.Get());
+
 
 	const FVMEquipmentInfo& Info = ItemReference->GetEquipmentInfo();
 	/*if (ItemReference)
@@ -59,10 +69,10 @@ void UVMInventoryItemSlot::NativeConstruct()
 	}
 	*/
 
-	if (ItemBorder)
-	{
-		ItemBorder->SetBrushColor(FLinearColor::Transparent);
-	}
+	//if (ItemBorder)
+	//{
+	//	ItemBorder->SetBrushColor(FLinearColor::Transparent);
+	//}
 
 }
 
@@ -87,25 +97,6 @@ void UVMInventoryItemSlot::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
 
 void UVMInventoryItemSlot::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation)
 {
-	/*Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
-
-	const FVMEquipmentInfo& Info = ItemReference->GetEquipmentInfo();
-
-	if (DragItemVisualClass)
-	{
-		const TObjectPtr<UVMDragItemVisual> DragVisual = CreateWidget<UVMDragItemVisual>(this, DragItemVisualClass);
-		DragVisual->ItemIcon->SetBrushFromTexture(Info.Icon);
-		DragVisual->ItemBorder->SetBrushColor(ItemBorder->GetBrushColor());
-
-		TObjectPtr<UVMItemDragDropOperation> DragItemOperation = NewObject<UVMItemDragDropOperation>();
-		DragItemOperation->SourceItem = ItemReference;
-		DragItemOperation->SourceInventory = ItemReference->OwningInventory;
-
-		DragItemOperation->DefaultDragVisual = DragVisual;
-		DragItemOperation->Pivot = EDragPivot::TopLeft;
-
-		OutOperation = DragItemOperation;
-	}*/
 	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
 
 	if (!ItemReference)
@@ -141,102 +132,151 @@ void UVMInventoryItemSlot::NativeOnDragDetected(const FGeometry& InGeometry, con
 }
 
 void UVMInventoryItemSlot::SetItemReference(UVMEquipment* ItemIn)
-	{ 
-		ItemReference = ItemIn;
-		const TCHAR* NameForLog = TEXT("NULL");
-		if (ItemReference)
-		{
-			// ItemName 이 FString 이라면 이렇게 TCHAR* 로 꺼내야 함
-			NameForLog = *ItemReference->GetEquipmentInfo().ItemName;
-		}
+{ 
+	ItemReference = ItemIn;
 
-		UE_LOG(LogTemp, Warning, TEXT("SetItemReference called, Item: %s"), NameForLog);
+	UE_LOG(LogTemp, Warning,
+		TEXT("InventorySlot(%s in %s)::SetItemReference Item=%s"),
+		*GetName(),
+		*GetOuter()->GetName(),
+		ItemReference ? *ItemReference->GetEquipmentInfo().ItemName : TEXT("NULL"));
 
-		RefreshFromItem();
-
-		SetUp(ItemIn->GetEquipmentInfo());
-	};
+	RefreshFromItem();   // 여기서만 처리
+};
 
 
 void UVMInventoryItemSlot::SetUp(const FVMEquipmentInfo& Info)
 {
-	// 다이나믹 머터리얼 생성
-	if (ItemIcon && ItemIcon->GetBrush().GetResourceObject())
+
+		// 1) 아직 MID가 없다면 한 번만 생성
+	if (!ItemMaterialInstance)
 	{
-		UMaterialInterface* BaseMat = Cast<UMaterialInterface>(ItemIcon->GetBrush().GetResourceObject());
-		if (BaseMat != nullptr)
+		UMaterialInterface* BaseMat = nullptr;
+
+		// Atlas 머터리얼 변수가 따로 있다면 우선 사용
+		if (AtlasMaterial)
+		{
+			BaseMat = AtlasMaterial;
+		}
+		else if (ItemIcon)
+		{
+			// 초기 Brush에 물려 있는 M_ItemAtlas (또는 MI_ItemAtlas)를 한 번만 사용
+			BaseMat = Cast<UMaterialInterface>(ItemIcon->GetBrush().GetResourceObject());
+		}
+
+		if (BaseMat)
 		{
 			ItemMaterialInstance = UMaterialInstanceDynamic::Create(BaseMat, this);
 			ItemIcon->SetBrushFromMaterial(ItemMaterialInstance);
+
+			UE_LOG(LogTemp, Warning,
+				TEXT("InventorySlot(%s)::SetUp created MID from %s"),
+				*GetName(), *BaseMat->GetName());
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning,
+				TEXT("InventorySlot(%s)::SetUp: BaseMat is NULL"),
+				*GetName());
 		}
 	}
-	//머터리얼 파라미터 설정
+
+	// 2) 이미 MID가 있으면, 파라미터만 갱신
 	if (ItemMaterialInstance)
 	{
 		ItemMaterialInstance->SetScalarParameterValue(TEXT("ColumnIndex"), Info.AtlasCol);
 		ItemMaterialInstance->SetScalarParameterValue(TEXT("RowIndex"), Info.AtlasRow);
+
+		UE_LOG(LogTemp, Warning,
+			TEXT("InventorySlot(%s)::SetUp set Col=%d Row=%d"),
+			*GetName(), Info.AtlasCol, Info.AtlasRow);
 	}
 
 }
 
 void UVMInventoryItemSlot::RefreshFromItem()
 {
-	/*UE_LOG(LogTemp, Warning, TEXT("RefreshFromItem: ENTER"));
 
-	// 1) 위젯 바인딩이 제대로 되었는지 확인
-	if (!ItemBorder)
+	UE_LOG(LogTemp, Warning,
+		TEXT("InventorySlot::RefreshFromItem ENTER, Ref=%s"),
+		*GetNameSafe(ItemReference));
+
+	if (SlotType == ESlotType::Inventory)
 	{
-		return;
+		ItemBorder->SetBrushColor(FLinearColor(0.4f, 0.0f, 0.4f, 1.0f));  // 보라색
 	}
-
-	// 2) 슬롯에 아이템이 없는 경우 → 빈 슬롯으로 표시
-	if (!ItemReference)
+	else if (SlotType == ESlotType::Equipment)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("RefreshFromItem: ItemReference is NULL"));
-		ItemBorder->SetBrushColor(FLinearColor::Transparent);
-		//ItemIcon->SetBrushFromTexture(nullptr);
-		return;
+		ItemBorder->SetBrushColor(FLinearColor::White);  // 흰색
 	}
-
-	// 3) 실제 아이템 정보 가져오기
-	const FVMEquipmentInfo& Info = ItemReference->GetEquipmentInfo();
-
-	// 테두리 색 (일단 회색으로 고정, 나중에 등급별 색상 적용 가능)
-	ItemBorder->SetBrushColor(FLinearColor::Gray);*/
-
-	// 4) 아이콘 세팅
-	/*if (Info.Icon)
-	{
-		ItemIcon->SetBrushFromTexture(Info.Icon);
-		UE_LOG(LogTemp, Warning, TEXT("RefreshFromItem: Icon %s set for %s"),
-			*Info.Icon->GetName(), *Info.ItemName);
-	}
-	else
-	{
-		ItemIcon->SetBrushFromTexture(nullptr);
-		UE_LOG(LogTemp, Warning, TEXT("RefreshFromItem: Icon is NULL for %s"),
-			*Info.ItemName);
-	}*/
-	UE_LOG(LogTemp, Warning, TEXT("RefreshFromItem: ENTER"));
 
 	if (!ItemIcon || !ItemBorder)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("RefreshFromItem: ItemIcon or ItemBorder is NULL"));
 		return;
+	}
 
+	const FLinearColor InventoryColor(0.5f, 0.0f, 0.8f, 1.0f); // 인벤/장비에서 아이템 있는 칸 색 (보라)
+	const FLinearColor EquipEmptyColor = FLinearColor::White;  // 장비칸 비었을 때 흰색
+
+	// 1) 빈 슬롯 처리
 	if (!ItemReference)
 	{
-		// 비어 있는 상태 표현
-		ItemIcon->SetBrushFromTexture(nullptr);
-		ItemBorder->SetBrushColor(FLinearColor::White); // 혹은 연한 색
+		ItemIcon->SetVisibility(ESlateVisibility::Hidden);
+
+		if (SlotType == ESlotType::Inventory)
+		{
+			// 인벤토리는 아이템 없어도 항상 보라 배경 유지
+			ItemBorder->SetBrushColor(InventoryColor);
+		}
+		else // ESlotType::Equipment
+		{
+			// 장비칸은 비었으면 흰 배경
+			ItemBorder->SetBrushColor(EquipEmptyColor);
+		}
+
 		return;
 	}
 
-	const FVMEquipmentInfo& Info = ItemReference->GetEquipmentInfo();
+	// 2) 아이템이 있는 경우
+	ItemIcon->SetVisibility(ESlateVisibility::Visible);
 
-	if (Info.Icon)
+	// 장비 / 인벤 모두 "아이템 있는 칸"은 보라색으로
+	ItemBorder->SetBrushColor(InventoryColor);
+
+	// 2) 베이스 머티리얼에서 MID 생성
+	if (!ItemMaterialInstance)
 	{
-		ItemIcon->SetBrushFromTexture(Info.Icon);
+		if (!ItemAtlasBaseMaterial)
+		{
+			UE_LOG(LogTemp, Warning,
+				TEXT("RefreshFromItem: ItemAtlasBaseMaterial is NULL! (set in WBP_VMInventoryItemSlot)"));
+			return;
+		}
+
+		ItemMaterialInstance = UMaterialInstanceDynamic::Create(ItemAtlasBaseMaterial, this);
+		ItemIcon->SetBrushFromMaterial(ItemMaterialInstance);
+
+		UE_LOG(LogTemp, Warning,
+			TEXT("RefreshFromItem: MID created=%p"), ItemMaterialInstance.Get());
 	}
 
+	if (!ItemMaterialInstance)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("RefreshFromItem: ItemMaterialInstance STILL NULL"));
+		return;
+	}
+
+	// 3) 아이템의 Atlas 정보 적용
+	const FVMEquipmentInfo& Info = ItemReference->GetEquipmentInfo();
+	ItemMaterialInstance->SetScalarParameterValue(TEXT("ColumnIndex"), Info.AtlasCol);
+	ItemMaterialInstance->SetScalarParameterValue(TEXT("RowIndex"), Info.AtlasRow);
+
+	UE_LOG(LogTemp, Warning,
+		TEXT("RefreshFromItem: Set Atlas Col=%d Row=%d"),
+		Info.AtlasCol, Info.AtlasRow);
 }
 
 
@@ -261,3 +301,16 @@ FReply UVMInventoryItemSlot::NativeOnMouseButtonDoubleClick(const FGeometry& InG
 	return Super::NativeOnMouseButtonDoubleClick(InGeometry, InMouseEvent);
 }
 
+void UVMInventoryItemSlot::ClearItem()
+{
+	ItemReference = nullptr;
+
+	if (ItemIcon)
+	{
+		ItemIcon->SetVisibility(ESlateVisibility::Hidden);
+	}
+	if (ItemBorder)
+	{
+		ItemBorder->SetBrushColor(FLinearColor::White);
+	}
+}

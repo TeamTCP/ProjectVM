@@ -66,6 +66,8 @@ public:
 	void UpdateInteractionWidget() const;
 	void DropItem(UVMEquipment* ItemToDrop, const int32 QuantityToDrop);
 
+	void UnequipItem(UVMEquipment* Item);
+
 	void SetCurrentNPC(AVMNPC* NewNPC);
 protected:
 	virtual void BeginPlay() override;
@@ -148,6 +150,14 @@ public:
 
 	UFUNCTION()
 	void EquipFromInventory(UVMEquipment* Item);
+
+	UPROPERTY()
+	TObjectPtr<AVMCharacterHeroHUD> HUD;
+
+	UFUNCTION(BlueprintCallable, Category = "Equipment")
+	UVMEquipment* GetEquippedWeapon() const { return EquippedWeapon; }
+
+
 
 	// 장비에 따른 스탯 갱신 함수
 	void RecalculateStatsFromEquipment();

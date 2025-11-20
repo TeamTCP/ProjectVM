@@ -5,8 +5,13 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Hero/VMCharacterHeroBase.h"
-#include "UI/Inventory/VMInventoryItemSlot.h"
 #include "VMEquipmentPanel.generated.h"
+
+
+class UWrapBox;
+class UVMEquipment;
+class UVMEquipmentItemSlot;
+class UVMInventoryItemSlot;
 
 
 /**
@@ -27,31 +32,39 @@ protected:
     UVMInventoryItemSlot* WeaponSlot;
     virtual void NativeConstruct() override;
 
-    // 인벤토리에서 더블클릭하면 여기로 던져줄 함수
-    UFUNCTION(BlueprintCallable, Category = "Equipment")
-    int32 TryEquipToEmptySlot(UVMEquipment* Item);
+public:
+	virtual void NativeOnInitialized() override;
+
+	/** 인벤토리에서 더블 클릭한 장비를 첫 빈 슬롯에 장착 */
+	UFUNCTION(BlueprintCallable, Category = "Equipment")
+	int32 TryEquipToEmptySlot(UVMEquipment* Item);
+
+	/** 모든 슬롯 비우기 (UI만) */
+	UFUNCTION(BlueprintCallable, Category = "Equipment")
+	void ClearAllSlots();
+
+	UFUNCTION()
+	void HandleEquipmentSlotDoubleClicked(UVMEquipment* Item);
 
 protected:
-    // WBP 안의 6개 슬롯 바인딩
-    UPROPERTY(meta = (BindWidget)) 
-    TObjectPtr<UVMInventoryItemSlot> Weapon_Slot0;
-    UPROPERTY(meta = (BindWidget)) 
-    TObjectPtr<UVMInventoryItemSlot> Weapon_Slot1;
-    UPROPERTY(meta = (BindWidget)) 
-    TObjectPtr<UVMInventoryItemSlot> Weapon_Slot2;
-    UPROPERTY(meta = (BindWidget)) 
-    TObjectPtr<UVMInventoryItemSlot> Weapon_Slot3;
-    UPROPERTY(meta = (BindWidget)) 
-    TObjectPtr<UVMInventoryItemSlot> Weapon_Slot4;
-    UPROPERTY(meta = (BindWidget)) 
-    TObjectPtr<UVMInventoryItemSlot> Weapon_Slot5;
+	/** 슬롯 위젯들이 한 번도 안 만들어졌으면 생성해 주는 함수 */
+	void EnsureSlotsInitialized();
 
-    // 코드에서 다루기 쉽게 배열로 묶어두기
-    UPROPERTY()
-    TArray<TObjectPtr<UVMInventoryItemSlot>> SlotWidgets;
+protected:
+	/** 장비 슬롯들을 넣어 줄 WrapBox (WBP에서 BindWidget) */
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UWrapBox> SlotWrapBox;
 
-    // 각 슬롯에 실제 어떤 아이템이 들어있는지
-    UPROPERTY()
-    TArray<TObjectPtr<UVMEquipment>> EquippedItems;
+	/** 슬롯으로 사용할 위젯 BP 클래스 (예: WBP_VMInventoryItemSlot) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Equipment")
+	TSubclassOf<UVMInventoryItemSlot> ItemBoxClass;
+
+	/** 실제로 생성된 슬롯 위젯 배열 */
+	UPROPERTY()
+	TArray<TObjectPtr<UVMInventoryItemSlot>> WeaponSlots;
+
+	/** 장비 슬롯 개수 (기본 6칸) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Equipment")
+	int32 NumEquipmentSlots = 6;
 
 };
