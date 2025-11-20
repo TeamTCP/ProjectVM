@@ -12,6 +12,7 @@
 #include "Materials/MaterialInstanceDynamic.h"  
 #include "Game/VMRPGPlayerController.h"
 #include "Kismet/GameplayStatics.h"
+#include "Quest/VMQuestManager.h"
 
 // Sets default values
 AVMItemCube::AVMItemCube()
@@ -60,6 +61,12 @@ void AVMItemCube::Interact()
     }
 
     Player->GetInventory()->AddNewItem(Equipment, 1);
+
+    UVMQuestManager* QM = GetGameInstance()->GetSubsystem<UVMQuestManager>();
+    if (QM != nullptr)
+    {
+        QM->NotifyItemCollecting();
+    }
 
     Destroy();
 }
