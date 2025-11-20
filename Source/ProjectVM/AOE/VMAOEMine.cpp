@@ -19,7 +19,7 @@ AVMAOEMine::AVMAOEMine()
 	Collision = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CylinderCollision"));
 	RootComponent = Collision;
 	Collision->InitCapsuleSize(50.f, 60.f); // 반지름, 높이(원통 형태로 조정)
-	Collision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	Collision->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Collision->SetCollisionResponseToAllChannels(ECR_Overlap);
 	Collision->SetGenerateOverlapEvents(true);
 
