@@ -12,6 +12,7 @@ class UWrapBox;
 class UVMEquipment;
 class UVMEquipmentItemSlot;
 class UVMInventoryItemSlot;
+class UVMInventoryPanel;
 
 
 /**
@@ -21,6 +22,10 @@ UCLASS()
 class PROJECTVM_API UVMEquipmentPanel : public UUserWidget
 {
 	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PanelRefs")
+	TObjectPtr<UVMInventoryPanel> LinkedInventoryPanel;
 
 public:
 	virtual void NativeOnInitialized() override;

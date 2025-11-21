@@ -61,71 +61,7 @@ void UVMEquipmentItemSlot::ClearItem()
 
 void UVMEquipmentItemSlot::RefreshFromItem()
 {
-    /*UE_LOG(LogTemp, Warning,
-        TEXT("RefreshFromItem: ENTER, Ref=%s"),
-        *GetNameSafe(ItemReference));
-
-    UObject* ResObj = ItemIcon ? ItemIcon->GetBrush().GetResourceObject() : nullptr;
-    UMaterialInterface* BaseMat = Cast<UMaterialInterface>(ResObj);
-
-    UE_LOG(LogTemp, Warning,
-        TEXT("RefreshFromItem: ItemIcon=%p, ResObj=%p, BaseMat=%p, MID=%p"),
-        ItemIcon.Get(),
-        ResObj,
-        BaseMat,
-        ItemMaterialInstance.Get());
-
-    if (!ItemIcon || !ItemBorder)
-        return;
-
-    //// 머티리얼 인스턴스가 없으면 여기서라도 생성
-    //if (!ItemMaterialInstance)
-    //{
-    //    if (UObject* ResObj = ItemIcon->GetBrush().GetResourceObject())
-    //    {
-    //        if (UMaterialInterface* BaseMat = Cast<UMaterialInterface>(ResObj))
-    //        {
-    //            ItemMaterialInstance = UMaterialInstanceDynamic::Create(BaseMat, this);
-    //            ItemIcon->SetBrushFromMaterial(ItemMaterialInstance);
-    //        }
-    //    }
-    //}
-
-    // 아이템 없으면 숨기기
-    if (!ItemReference)
-    {
-        ItemIcon->SetVisibility(ESlateVisibility::Hidden);
-        ItemBorder->SetVisibility(ESlateVisibility::Hidden);
-        return;
-    }
-
-    const FVMEquipmentInfo& Info = ItemReference->GetEquipmentInfo();
-
-    // 혹시라도 MID 날아갔으면 다시 생성
-    if (!ItemMaterialInstance && AtlasMaterial)
-    {
-        ItemMaterialInstance = UMaterialInstanceDynamic::Create(AtlasMaterial, this);
-        ItemIcon->SetBrushFromMaterial(ItemMaterialInstance);
-    }
-
-    if (ItemMaterialInstance)
-    {
-        UE_LOG(LogTemp, Warning,
-            TEXT("EquipmentItemSlot::Set Params Col=%d Row=%d"),
-            Info.AtlasCol, Info.AtlasRow);
-
-        ItemMaterialInstance->SetScalarParameterValue(TEXT("ColumnIndex"), Info.AtlasCol);
-        ItemMaterialInstance->SetScalarParameterValue(TEXT("RowIndex"), Info.AtlasRow);
-    }
-    else
-    {
-        UE_LOG(LogTemp, Warning,
-            TEXT("EquipmentItemSlot::RefreshFromItem ItemMaterialInstance is STILL NULL"));
-    }
-
-    ItemIcon->SetVisibility(ESlateVisibility::Visible);
-    ItemBorder->SetVisibility(ESlateVisibility::Visible);
-    */
+ 
     UE_LOG(LogTemp, Warning,
         TEXT("InventorySlot::RefreshFromItem ENTER, Ref=%s"),
         *GetNameSafe(ItemReference));

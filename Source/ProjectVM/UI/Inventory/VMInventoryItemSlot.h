@@ -13,6 +13,8 @@ class UVMInventoryTooltip;
 class UVMDragItemVisual;
 class UVMEquipment;
 class UVMEquipmentInfo;
+class UVMInventoryPanel;
+class UVMEquipmnetPanel;
 class UTextBlock;
 class UBorder;
 class UImage;
@@ -23,6 +25,7 @@ class UImage;
 UENUM(BlueprintType)
 enum class ESlotType : uint8
 {
+	None UMETA(DisplayName = "None"),
 	Inventory UMETA(DisplayName = "Inventory"),
 	Equipment UMETA(DisplayName = "Equipment")
 };
@@ -87,13 +90,27 @@ public:
 	TObjectPtr<UMaterialInterface> AtlasMaterial;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Slot")
-	ESlotType SlotType = ESlotType::Inventory;
+	ESlotType SlotType = ESlotType::None;
+
+	UPROPERTY()
+	UVMInventoryPanel* InventoryPanelRef;
+
+	UPROPERTY()
+	UVMEquipmentPanel* EquipmentPanelRef;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Inventory")
+	TObjectPtr<class UVMEquipment> StoredItem;
 
 
 	// 더블 클릭 델리게이트 (패널에서 바인딩)
 	UPROPERTY(BlueprintAssignable, Category = "Inventory")
 	FOnInventoryItemDoubleClicked OnItemDoubleClicked;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tooltip")
+	bool bEnableTooltip = true;
+	virtual void NativeOnDragCancelled(
+		const FDragDropEvent& InDragDropEvent,
+		UDragDropOperation* InOperation) override;
 
 
 protected:

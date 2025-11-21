@@ -9,6 +9,10 @@
 #include "Item/Equipment/VMEquipmentInfo.h"
 #include "Item/Equipment/VMEquipment.h"
 
+#include "UI/Inventory/VMInventoryPanel.h"      
+#include "UI/Inventory/VMEquipmentPanel.h"     
+#include "Blueprint/WidgetBlueprintLibrary.h"
+
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Components/Border.h"
@@ -18,76 +22,56 @@
 
 void UVMInventoryItemSlot::NativeOnInitialized()
 {
-	Super::NativeOnInitialized();
-	if (TooltipClass)
-	{
-		UVMInventoryTooltip* ToolTip = CreateWidget<UVMInventoryTooltip>(this, TooltipClass);
-		ToolTip->InventorySlotBeingHovered = this;
-		SetToolTip(ToolTip);
-	}
+	
+	UE_LOG(LogTemp, Warning,
+		TEXT("Slot::NativeOnInitialized - %s"), *GetName());
 
-	ItemReference = nullptr;
-	RefreshFromItem();
+	Super::NativeOnInitialized();
+
 }
 
 void UVMInventoryItemSlot::NativeConstruct()
 {
-	Super::NativeConstruct();
-
-	UE_LOG(LogTemp, Warning,
-		TEXT("InventorySlot::NativeConstruct %s Icon=%p Border=%p"),
-		*GetName(),
-		ItemIcon.Get(),
-		ItemBorder.Get());
-
-
-	const FVMEquipmentInfo& Info = ItemReference->GetEquipmentInfo();
-	/*if (ItemReference)
+	if (bEnableTooltip && TooltipClass)
 	{
-		ItemBorder->SetBrushColor(FLinearColor::Gray);
-	}
+		// 가능하면 OwningPlayer 사용하는 게 좋음
+		UVMInventoryTooltip* ToolTip =
+			CreateWidget<UVMInventoryTooltip>(GetOwningPlayer(), TooltipClass);
 
-	ItemIcon->SetBrushFromTexture(Info.Icon);
+		ToolTip->InventorySlotBeingHovered = this;
+		SetToolTip(ToolTip);
 
-	if (!ItemReference)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("InventoryItemSlot: ItemReference is null in NativeConstruct"));
-		return;
-	}
-
-
-	ItemBorder->SetBrushColor(FLinearColor::Gray);
-
-	if (Info.Icon)
-	{
-		ItemIcon->SetBrushFromTexture(Info.Icon);
+		UE_LOG(LogTemp, Warning,
+			TEXT("Slot::NativeConstruct - Tooltip SET OK"));
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("InventoryItemSlot: Icon is null for item %s"),
-			*Info.ItemName);
+		SetToolTip(nullptr);
+		UE_LOG(LogTemp, Warning,
+			TEXT("Slot::NativeConstruct - Tooltip DISABLED"));
 	}
-	*/
 
-	//if (ItemBorder)
-	//{
-	//	ItemBorder->SetBrushColor(FLinearColor::Transparent);
-	//}
+
+	const FVMEquipmentInfo& Info = ItemReference->GetEquipmentInfo();
 
 }
 
 FReply UVMInventoryItemSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Slot::OnMouseButtonDown"));
-
-	FReply Reply = Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
-
 	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
 	{
-		return Reply.Handled().DetectDrag(TakeWidget(), EKeys::LeftMouseButton);
+		UE_LOG(LogTemp, Warning,
+			TEXT("Slot::MouseButtonDown - %s"), *GetName());
+
+		// UMG 권장 패턴: DetectDragIfPressed -> NativeReply
+		return UWidgetBlueprintLibrary::DetectDragIfPressed(
+			InMouseEvent,
+			this,                   // ★ 드래그 타겟은 무조건 this
+			EKeys::LeftMouseButton
+		).NativeReply;
 	}
 
-	return Reply.Unhandled();
+	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 }
 
 void UVMInventoryItemSlot::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
@@ -99,36 +83,37 @@ void UVMInventoryItemSlot::NativeOnDragDetected(const FGeometry& InGeometry, con
 {
 	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
 
-	if (!ItemReference)
-		return;
+	UE_LOG(LogTemp, Warning, TEXT("Slot::NativeOnDragDetected - %s"),
+		*GetName());
 
-	const FVMEquipmentInfo& Info = ItemReference->GetEquipmentInfo();
-
-	if (DragItemVisualClass)
+	if (!ItemReference)   // 슬롯이 들고 있는 장비 포인터
 	{
-		UVMDragItemVisual* DragVisual =
-			CreateWidget<UVMDragItemVisual>(this, DragItemVisualClass);
-
-		if (Info.Icon)
-		{
-			DragVisual->ItemIcon->SetBrushFromTexture(Info.Icon);
-		}
-		DragVisual->ItemBorder->SetBrushColor(ItemBorder->GetBrushColor());
-
-		UVMItemDragDropOperation* DragItemOperation =
-			NewObject<UVMItemDragDropOperation>();
-
-		DragItemOperation->SourceItem = ItemReference;
-		DragItemOperation->SourceInventory = ItemReference->OwningInventory;
-		DragItemOperation->DefaultDragVisual = DragVisual;
-		DragItemOperation->Pivot = EDragPivot::TopLeft;
-
-		OutOperation = DragItemOperation;
-
-		UE_LOG(LogTemp, Warning, TEXT("NativeOnDragDetected: drag op created for %s"),
-			*Info.ItemName);
-
+		UE_LOG(LogTemp, Warning, TEXT("NativeOnDragDetected: ItemReference is NULL"));
+		return;
 	}
+
+	// 1) DragDropOperation 생성
+	UVMItemDragDropOperation* DragOp =
+		Cast<UVMItemDragDropOperation>(
+			UWidgetBlueprintLibrary::CreateDragDropOperation(
+				UVMItemDragDropOperation::StaticClass()));
+
+	if (!DragOp)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("NativeOnDragDetected: DragOp is NULL"));
+		return;
+	}
+
+	// 2) ★ 여기서 반드시 Payload 를 채워준다
+	DragOp->Payload = ItemReference;       // UVMEquipment* 를 넘김
+	DragOp->DefaultDragVisual = this;      // 드래그 시 보여줄 위젯
+	DragOp->Pivot = EDragPivot::MouseDown;
+
+	OutOperation = DragOp;
+
+	/*UE_LOG(LogTemp, Warning,
+		TEXT("NativeOnDragDetected: drag op created for %s (Op=%p, Payload=%p)"),
+		*ItemReference->GetName(), DragOp, DragOp->Payload);*/
 }
 
 void UVMInventoryItemSlot::SetItemReference(UVMEquipment* ItemIn)
@@ -142,6 +127,29 @@ void UVMInventoryItemSlot::SetItemReference(UVMEquipment* ItemIn)
 		ItemReference ? *ItemReference->GetEquipmentInfo().ItemName : TEXT("NULL"));
 
 	RefreshFromItem();   // 여기서만 처리
+
+	OnItemDoubleClicked.Clear();
+
+	if (SlotType == ESlotType::Equipment)
+	{
+		// 장비 패널 이벤트로 바인딩
+		if (EquipmentPanelRef)
+		{
+			OnItemDoubleClicked.AddDynamic(
+				EquipmentPanelRef,
+				&UVMEquipmentPanel::HandleEquipmentSlotDoubleClicked);
+		}
+	}
+	else
+	{
+		// 인벤토리 패널 이벤트로 바인딩
+		if (InventoryPanelRef)
+		{
+			OnItemDoubleClicked.AddDynamic(
+				InventoryPanelRef,
+				&UVMInventoryPanel::HandleItemDoubleClicked);
+		}
+	}
 };
 
 
@@ -232,6 +240,7 @@ void UVMInventoryItemSlot::RefreshFromItem()
 		}
 		else // ESlotType::Equipment
 		{
+			const FVMEquipmentInfo& Info = ItemReference->GetEquipmentInfo();
 			// 장비칸은 비었으면 흰 배경
 			ItemBorder->SetBrushColor(EquipEmptyColor);
 		}
@@ -284,16 +293,79 @@ void UVMInventoryItemSlot::RefreshFromItem()
 
 bool UVMInventoryItemSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
+	UVMItemDragDropOperation* DragOp = Cast<UVMItemDragDropOperation>(InOperation);
+	if (!DragOp || !DragOp->SourceItem)
+		return false;
+
+	// 슬롯 위 드롭 → 슬롯 이동 처리
+	if (IsHovered())
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("OnDrop: Dropped ON SLOT %s"), *GetName());
+
+		// TODO: 인벤토리/장비 간 이동 로직
+		return true;
+	}
+
+	// 슬롯 영역 좌표 계산
+	FVector2D ScreenDropPosition = InDragDropEvent.GetScreenSpacePosition();
+	const FSlateLayoutTransform& Transform = InGeometry.GetAccumulatedLayoutTransform();
+	FSlateRect SlateRect = InGeometry.GetLayoutBoundingRect();
+
+	FVector2D TopLeft = TransformPoint(Transform, SlateRect.GetTopLeft());
+	FVector2D BottomRight = TransformPoint(Transform, SlateRect.GetBottomRight());
+
+	bool bIsDropInside =
+		ScreenDropPosition.X >= TopLeft.X &&
+		ScreenDropPosition.X <= BottomRight.X &&
+		ScreenDropPosition.Y >= TopLeft.Y &&
+		ScreenDropPosition.Y <= BottomRight.Y;
+
+	// UI 바깥에서 드롭 → 월드에 아이템 떨어뜨리기
+	if (!bIsDropInside)
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("OnDrop: Dropped OUTSIDE UI → Dropping to WORLD"));
+
+		DragOp->SourceInventory->DropItemToWorld(
+			DragOp->SourceItem);
+
+		return true;
+	}
+
 	return Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
+}
+
+void UVMInventoryItemSlot::NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
+{
+	Super::NativeOnDragCancelled(InDragDropEvent, InOperation);
+
+	UVMItemDragDropOperation* DragOp = Cast<UVMItemDragDropOperation>(InOperation);
+	if (!DragOp || !DragOp->SourceItem || !DragOp->SourceInventory)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DragCancelled: invalid DragOp"));
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning,
+		TEXT("DragCancelled: dropping '%s' to world"),
+		*DragOp->SourceItem->GetName());
+
+	// 여기서 월드 드랍
+	DragOp->SourceInventory->DropItemToWorld(
+		DragOp->SourceItem);
 }
 
 FReply UVMInventoryItemSlot::NativeOnMouseButtonDoubleClick(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	UE_LOG(LogTemp, Warning, TEXT("InventorySlot::OnMouseButtonDoubleClick"));
+	UE_LOG(LogTemp, Warning,
+		TEXT("Slot::OnMouseButtonDoubleClick - THIS=%s, SlotType=%d, Vis=%d"),
+		*GetNameSafe(this),
+		(int32)SlotType,
+		(int32)GetVisibility());
 
 	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton && ItemReference)
 	{
-		// 더블클릭 시 장착 요청 브로드캐스트
 		OnItemDoubleClicked.Broadcast(ItemReference);
 		return FReply::Handled();
 	}

@@ -22,6 +22,7 @@
 
 
 class UVMEquipment;
+class UVMHeroStatComponent;
 
 // 인벤토리 관련 구조체
 USTRUCT()
@@ -69,6 +70,7 @@ public:
 	void UnequipItem(UVMEquipment* Item);
 
 	void SetCurrentNPC(AVMNPC* NewNPC);
+
 protected:
 	virtual void BeginPlay() override;
 	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -252,14 +254,30 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
 	int32 CurrentAttack = 0;
-	
-	// 캐릭터의 실제 스탯 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	int32 AttackPower = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	int32 CurrentDefense;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	int32 CurrentHealth;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	int32 CurrentMana;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	int32 CurrentManaRegen;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	int32 CurrentSpeed;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	int32 CurrentLifeSteal;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
 	TObjectPtr<UVMEquipment> EquippedWeapon;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stat")
+	UVMHeroStatComponent* VMHeroStatComponent;
 
 
 #pragma region 나희영_손 묻음 ㅈㅅ

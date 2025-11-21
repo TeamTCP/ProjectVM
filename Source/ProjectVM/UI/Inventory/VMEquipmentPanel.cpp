@@ -3,6 +3,7 @@
 
 #include "UI/Inventory/VMEquipmentPanel.h"
 #include "UI/Inventory/VMInventoryItemSlot.h"
+#include "UI/Inventory/VMInventoryPanel.h"
 #include "Item/Equipment/VMEquipment.h"
 #include "Hero/VMCharacterHeroBase.h"
 #include "UI/Character/VMCharacterHeroHUD.h"
@@ -21,7 +22,8 @@ void UVMEquipmentPanel::NativeOnInitialized()
 
 void UVMEquipmentPanel::EnsureSlotsInitialized()
 {
-    // 이미 만들어져 있으면 다시 만들 필요 없음
+
+     // 이미 만들어져 있으면 다시 만들 필요 없음
     if (WeaponSlots.Num() > 0)
         return;
 
@@ -41,17 +43,23 @@ void UVMEquipmentPanel::EnsureSlotsInitialized()
         return;
     }
 
-
-
+    // 기존 자식/배열 초기화
     SlotWrapBox->ClearChildren();
     WeaponSlots.Empty();
 
-
-
+    // NumEquipmentSlots 만큼 장비 슬롯 생성
     for (int32 i = 0; i < NumEquipmentSlots; ++i)
     {
         UVMInventoryItemSlot* NewSlotWidget =
             CreateWidget<UVMInventoryItemSlot>(this, ItemBoxClass);
+
+        if (NewSlotWidget)
+        {
+            // 장비창에서는 Tooltip 끄기
+            NewSlotWidget->bEnableTooltip = false;
+
+            SlotWrapBox->AddChildToWrapBox(NewSlotWidget);
+        }
 
         UE_LOG(LogTemp, Warning,
             TEXT("EnsureSlotsInitialized: CreateWidget idx=%d -> %s"),
@@ -60,12 +68,15 @@ void UVMEquipmentPanel::EnsureSlotsInitialized()
         if (!NewSlotWidget)
             continue;
 
+        //이 슬롯은 '장비 슬롯'이라는 표시
         NewSlotWidget->SlotType = ESlotType::Equipment;
+        NewSlotWidget->EquipmentPanelRef = this;
 
+        // WrapBox에 추가
         SlotWrapBox->AddChildToWrapBox(NewSlotWidget);
         WeaponSlots.Add(NewSlotWidget);
 
-        // 장비 없는 상태로 초기화
+        // 아직 장착된 아이템 없음
         NewSlotWidget->SetItemReference(nullptr);
     }
 
@@ -104,8 +115,16 @@ int32 UVMEquipmentPanel::TryEquipToEmptySlot(UVMEquipment* Item)
             UE_LOG(LogTemp, Warning,
                 TEXT("EquipmentPanel: EMPTY SLOT FOUND -> %d"), i);
 
+            // 인벤토리 바인딩 제거
+            EquipSlot->OnItemDoubleClicked.Clear();
+
+            // 장비 패널용 바인딩 추가
+            EquipSlot->OnItemDoubleClicked.AddDynamic(
+                this, &UVMEquipmentPanel::HandleEquipmentSlotDoubleClicked);
+
             // 인벤토리랑 동일하게 아이콘/텍스트 세팅
             EquipSlot->SetItemReference(Item);
+
 
             return i;
         }
@@ -130,13 +149,20 @@ void UVMEquipmentPanel::ClearAllSlots()
 
 void UVMEquipmentPanel::HandleEquipmentSlotDoubleClicked(UVMEquipment* Item)
 {
+
+    UE_LOG(LogTemp, Warning,
+        TEXT("EquipmentPanel::HandleEquipmentSlotDoubleClicked CALLED, Item=%s"),
+        Item ? *Item->GetEquipmentInfo().ItemName : TEXT("NULL"));
     if (!Item)
     {
         UE_LOG(LogTemp, Warning, TEXT("EquipmentPanel: DoubleClick but Item is NULL"));
         return;
     }
 
-    // Owner 캐릭터 가져오기
+    UE_LOG(LogTemp, Warning, TEXT("EquipmentPanel: DoubleClicked %s"),
+        *Item->GetEquipmentInfo().ItemName);
+
+    // 1) PlayerController / Hero 가져오기
     APlayerController* PC = GetOwningPlayer();
     if (!PC)
         return;
@@ -145,28 +171,36 @@ void UVMEquipmentPanel::HandleEquipmentSlotDoubleClicked(UVMEquipment* Item)
     if (!Hero)
         return;
 
-    // 1) 장비 해제 (캐릭터 스탯 감소 처리)
+    // 2) 캐릭터에서 장비 해제 (스탯 제거 포함)
     Hero->UnequipItem(Item);
 
-    // 2) 인벤토리에 다시 추가
-    if (UVMInventoryComponent* Inv = Hero->GetInventory())
+    // 3) Hero의 인벤토리 가져오기
+    UVMInventoryComponent* Inventory = Hero->GetInventory();
+    if (Inventory)
     {
-        Inv->AddItem(Item);
+        Inventory->AddNewItem(Item, 1);   // 인벤토리로 돌려보내기
     }
 
-    // 3) 장비 패널에서 슬롯 비우기
-    int32 SlotIndex = WeaponSlots.IndexOfByKey(Item);
-    if (WeaponSlots.IsValidIndex(SlotIndex))
+    // 4) 장비 슬롯 UI 비우기
+    for (UVMInventoryItemSlot* EquipSlot : WeaponSlots)
     {
-        WeaponSlots[SlotIndex]->SetItemReference(nullptr);
-    }
-
-    // 4) 인벤토리 패널 새로고침
-    if (AVMCharacterHeroHUD* HUD = PC->GetHUD<AVMCharacterHeroHUD>())
-    {
-        if (HUD->InventoryPanel)
+        if (EquipSlot && EquipSlot->GetItemReference() == Item)
         {
-            HUD->InventoryPanel->RefreshInventory();
+            EquipSlot->ClearItem();
+            break;
+        }
+    }
+
+    // 5) 인벤토리 UI 새로고침
+    APlayerController* LocalPC = Hero->GetController<APlayerController>();
+    if (LocalPC)
+    {
+        if (AVMCharacterHeroHUD* HUD = Cast<AVMCharacterHeroHUD>(LocalPC->GetHUD()))
+        {
+            if (HUD->InventoryPanel)
+            {
+                HUD->InventoryPanel->RefreshInventory();
+            }
         }
     }
 

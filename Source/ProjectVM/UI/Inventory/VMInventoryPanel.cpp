@@ -49,8 +49,9 @@ void UVMInventoryPanel::RefreshInventory()
             CreateWidget<UVMInventoryItemSlot>(this, InventorySlotClass);
 
         ItemSlot->SlotType = ESlotType::Inventory;
+        ItemSlot->InventoryPanelRef = this;
 
-        ItemSlot->OnItemDoubleClicked.AddDynamic(this, &UVMInventoryPanel::HandleItemDoubleClicked);
+   /*     ItemSlot->OnItemDoubleClicked.AddDynamic(this, &UVMInventoryPanel::HandleItemDoubleClicked);*/
 
         ItemSlot->SetItemReference(InventoryItem);  // 여기서 SetItemReference 로그가 떠야 함
 
@@ -75,32 +76,25 @@ void UVMInventoryPanel::HandleItemDoubleClicked(UVMEquipment* Item)
     Hero->EquipFromInventory(Item);
 
     // 2) 장비 패널 UI
-    if (APlayerController* PC = Cast<APlayerController>(Hero->GetController()))
+    if (LinkedEquipmentPanel)
     {
-        UE_LOG(LogTemp, Warning, TEXT("InventoryPanel: PlayerController OK"));
-        if (AVMCharacterHeroHUD* HUD = PC->GetHUD<AVMCharacterHeroHUD>())
+        UE_LOG(LogTemp, Warning, TEXT("InventoryPanel: LinkedEquipmentPanel OK"));
+
+        const int32 EquipIndex = LinkedEquipmentPanel->TryEquipToEmptySlot(Item);
+
+        if (EquipIndex != INDEX_NONE)
         {
-            UE_LOG(LogTemp, Warning, TEXT("InventoryPanel: HUD OK"));
-            if (HUD->EquipmentPanel)
-            {
-                UE_LOG(LogTemp, Warning, TEXT("InventoryPanel: EquipmentPanel valid, calling TryEquipToEmptySlot"));
-
-                // 수정
-                const int32 EquippedIndex = HUD->EquipmentPanel->TryEquipToEmptySlot(Item);
-
-                if (EquippedIndex != INDEX_NONE)
-                {
-                    // 장비칸에 장착 성공 → 인벤토리에서 제거 + 새로고침
-                    InventoryReference->RemoveSingleInstanceOfItem(Item);
-                    RefreshInventory();
-                }
-                else
-                {
-                    UE_LOG(LogTemp, Warning, TEXT("InventoryPanel: No free equipment slot, item stays in inventory"));
-                }
-            }
-
+            InventoryReference->RemoveSingleInstanceOfItem(Item);
+            RefreshInventory();
         }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("InventoryPanel: No free equipment slot"));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("InventoryPanel: LinkedEquipmentPanel is NULL"));
     }
 }   
 

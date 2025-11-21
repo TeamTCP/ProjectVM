@@ -3,11 +3,18 @@
 
 #include "Hero/VMHeroStatComponent.h"
 #include "Item/Equipment/VMEquipment.h"
+#include "Hero/HeroStat.h"
 
 UVMHeroStatComponent::UVMHeroStatComponent()
 {
 	bWantsInitializeComponent = true;
 	PrimaryComponentTick.bCanEverTick = true;
+
+	BaseStats = FHeroStat();
+	FinalStats = FHeroStat();
+	CurStats = FHeroStat();
+	AdditiveModifier = FHeroStat();
+	MultiplicativeModifier = FHeroStat();
 
 	TimeProgress = 0.0f;
 }
@@ -117,50 +124,74 @@ void UVMHeroStatComponent::ApplyStat(FHeroStat InStat)
 
 void UVMHeroStatComponent::ApplyEquipmentStats(UVMEquipment* Equipment)
 {
-	FVMEquipmentInfo EquipmentInfo = Equipment->GetEquipmentInfo();
-	
-	FHeroStat NewDefaultStats;
+	if (!Equipment) return;
 
-	NewDefaultStats.AttackPower = BaseStats.AttackPower + EquipmentInfo.AttackPower;
-	NewDefaultStats.DefensivePower = BaseStats.DefensivePower + EquipmentInfo.DefensivePower;
-	NewDefaultStats.HealthPoint = BaseStats.HealthPoint + EquipmentInfo.HealthPoint;
-	NewDefaultStats.ManaPoint = BaseStats.ManaPoint + EquipmentInfo.ManaPoint;
-	NewDefaultStats.ManaRegeneration = BaseStats.ManaRegeneration + EquipmentInfo.ManaRegeneration;
-	NewDefaultStats.LifeSteal = BaseStats.LifeSteal + EquipmentInfo.LifeSteal;
+	const FVMEquipmentInfo& Info = Equipment->GetEquipmentInfo();
 
-	FHeroStat NewCurStats;
+	AdditiveModifier.AttackPower += Info.AttackPower;
+	AdditiveModifier.DefensivePower += Info.DefensivePower;
+	AdditiveModifier.HealthPoint += Info.HealthPoint;
+	AdditiveModifier.ManaPoint += Info.ManaPoint;
+	AdditiveModifier.ManaRegeneration += Info.ManaRegeneration;
+	AdditiveModifier.Speed += Info.Speed;
+	AdditiveModifier.LifeSteal += Info.LifeSteal;
 
-	NewCurStats.AttackPower = CurStats.AttackPower + EquipmentInfo.AttackPower;
-	NewCurStats.DefensivePower = CurStats.DefensivePower + EquipmentInfo.DefensivePower;
-	NewCurStats.ManaRegeneration = CurStats.ManaRegeneration + EquipmentInfo.ManaRegeneration;
-	NewCurStats.LifeSteal = CurStats.LifeSteal + EquipmentInfo.LifeSteal;
+	RecalculateFromEquipment();
+	UE_LOG(LogTemp, Warning,
+		TEXT("[Equip] Atk=%d Def=%d HP=%d Mana=%d Speed=%d"),
+		CurStats.AttackPower,
+		CurStats.DefensivePower,
+		CurStats.HealthPoint,
+		CurStats.ManaPoint,
+		CurStats.Speed
+	);
 
-	ApplyDefaultStat(NewDefaultStats);
-	ApplyStat(NewCurStats);
 }
 
 void UVMHeroStatComponent::RemoveEquipmentStats(UVMEquipment* Equipment)
 {
-	FVMEquipmentInfo EquipmentInfo = Equipment->GetEquipmentInfo();
+	if (!Equipment) return;
 
-	FHeroStat NewDefaultStats;
+	const FVMEquipmentInfo& Info = Equipment->GetEquipmentInfo();
 
-	NewDefaultStats.AttackPower = BaseStats.AttackPower - EquipmentInfo.AttackPower;
-	NewDefaultStats.DefensivePower = BaseStats.DefensivePower - EquipmentInfo.DefensivePower;
-	NewDefaultStats.HealthPoint = BaseStats.HealthPoint - EquipmentInfo.HealthPoint;
-	NewDefaultStats.ManaPoint = BaseStats.ManaPoint - EquipmentInfo.ManaPoint;
-	NewDefaultStats.ManaRegeneration = BaseStats.ManaRegeneration - EquipmentInfo.ManaRegeneration;
-	NewDefaultStats.LifeSteal = BaseStats.LifeSteal - EquipmentInfo.LifeSteal;
+	AdditiveModifier.AttackPower -= Info.AttackPower;
+	AdditiveModifier.DefensivePower -= Info.DefensivePower;
+	AdditiveModifier.HealthPoint -= Info.HealthPoint;
+	AdditiveModifier.ManaPoint -= Info.ManaPoint;
+	AdditiveModifier.ManaRegeneration -= Info.ManaRegeneration;
+	AdditiveModifier.Speed -= Info.Speed;
+	AdditiveModifier.LifeSteal -= Info.LifeSteal;
 
-	FHeroStat NewCurStats;
+	RecalculateFromEquipment();
 
-	NewCurStats.AttackPower = CurStats.AttackPower - EquipmentInfo.AttackPower;
-	NewCurStats.DefensivePower = CurStats.DefensivePower - EquipmentInfo.DefensivePower;
-	NewCurStats.ManaRegeneration = CurStats.ManaRegeneration - EquipmentInfo.ManaRegeneration;
-	NewCurStats.LifeSteal = CurStats.LifeSteal - EquipmentInfo.LifeSteal;
+	UE_LOG(LogTemp, Warning,
+		TEXT("[Equip] Atk=%d Def=%d HP=%d Mana=%d Speed=%d"),
+		CurStats.AttackPower,
+		CurStats.DefensivePower,
+		CurStats.HealthPoint,
+		CurStats.ManaPoint,
+		CurStats.Speed
+	);
 
-	ApplyDefaultStat(NewDefaultStats);
-	ApplyStat(NewCurStats);
+}
+
+void UVMHeroStatComponent::RecalculateFromEquipment()
+{
+	FinalStats = BaseStats;
+
+	// 2) 장비/버프 등 AdditiveModifier 누적
+	FinalStats.AttackPower += AdditiveModifier.AttackPower;
+	FinalStats.DefensivePower += AdditiveModifier.DefensivePower;
+	FinalStats.HealthPoint += AdditiveModifier.HealthPoint;
+	FinalStats.ManaPoint += AdditiveModifier.ManaPoint;
+	FinalStats.ManaRegeneration += AdditiveModifier.ManaRegeneration;
+	FinalStats.Speed += AdditiveModifier.Speed;
+	FinalStats.LifeSteal += AdditiveModifier.LifeSteal;
+
+	// 3) 현재 스탯에 반영
+	CurStats = FinalStats;
+
+	OnSpeedChanged.Broadcast(CurStats.Speed);
 }
 
 void UVMHeroStatComponent::InitializeComponent()
@@ -176,7 +207,7 @@ void UVMHeroStatComponent::InitializeComponent()
 	BaseStats.LifeSteal = 10;
 
 	CurStats = BaseStats;
-
+	AdditiveModifier = FHeroStat();
 	TimeProgress = 0.0f;
 }
 

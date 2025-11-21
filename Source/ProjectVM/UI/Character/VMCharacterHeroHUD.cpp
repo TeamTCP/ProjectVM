@@ -18,15 +18,9 @@ void AVMCharacterHeroHUD::BeginPlay()
 
 	APlayerController* PC = GetOwningPlayerController();
 
-	UE_LOG(LogTemp, Warning, TEXT("HeroHUD::BeginPlay called"));
-	UE_LOG(LogTemp, Warning, TEXT("HeroHUD: InventoryPanelClass = %s, EquipmentPanelClass = %s"),
-		InventoryPanelClass ? *InventoryPanelClass->GetName() : TEXT("NULL"),
-		EquipmentPanelClass ? *EquipmentPanelClass->GetName() : TEXT("NULL"));
 
-	UE_LOG(LogTemp, Log, TEXT("QWER MainMenuClass 확인 전"));
 	if (MainMenuClass)
 	{
-		UE_LOG(LogTemp, Log, TEXT("QWER MainMenuClass HIHI"));
 		MainMenuWidget = CreateWidget<UVMMainMenu>(GetWorld(), MainMenuClass);
 		MainMenuWidget->AddToViewport(5);
 		MainMenuWidget->SetVisibility(ESlateVisibility::Collapsed);
@@ -55,8 +49,7 @@ void AVMCharacterHeroHUD::BeginPlay()
 		if (EquipmentPanel)
 		{
 			EquipmentPanel->AddToViewport();
-			EquipmentPanel->SetVisibility(ESlateVisibility::Visible);
-			UE_LOG(LogTemp, Warning, TEXT("HUD: EquipmentPanel created OK"));
+			EquipmentPanel->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
 }

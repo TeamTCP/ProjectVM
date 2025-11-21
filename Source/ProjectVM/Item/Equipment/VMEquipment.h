@@ -15,7 +15,7 @@ class UVMEquipmentInfo;
  * 
  */
 
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class PROJECTVM_API UVMEquipment : public UObject
 {
 	GENERATED_BODY()

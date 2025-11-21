@@ -49,6 +49,9 @@ public:
 	
 	void ApplyEquipmentStats(class UVMEquipment* Equipment);
 	void RemoveEquipmentStats(class UVMEquipment* Equipment);
+	void RecalculateFromEquipment();
+
+
 
 	FORCEINLINE FHeroStat GetFinalStat() { return FinalStats; }
 	FORCEINLINE FHeroStat GetCurStat() { return CurStats; }
@@ -56,6 +59,17 @@ public:
 	FORCEINLINE FHeroStat GetStat() { return CurStats; } // Legacy
 	FORCEINLINE FHeroStat GetDefaultStat() { return FinalStats; } // Legacy
 
+	UPROPERTY(VisibleAnywhere, Category = Stat)
+	FHeroStat BaseStats;
+
+	UPROPERTY(VisibleAnywhere, Category = Stat)
+	FHeroStat FinalStats;
+
+	UPROPERTY(VisibleAnywhere, Category = Stat)
+	FHeroStat CurStats;
+
+	UPROPERTY(VisibleAnywhere, Category = Stat)
+	FHeroStat AdditiveModifier;
 
 protected:
 	virtual void InitializeComponent() override;
@@ -63,20 +77,12 @@ protected:
 	virtual void CalcFinalStats();
 
 protected:
-	UPROPERTY(VisibleAnywhere, Category = Stat)
-	FHeroStat BaseStats;
 
-	UPROPERTY(VisibleAnywhere, Category = Stat)
-	FHeroStat AdditiveModifier;
+
+	
 
 	UPROPERTY(VisibleAnywhere, Category = Stat)
 	FHeroStat MultiplicativeModifier;
-
-	UPROPERTY(VisibleAnywhere, Category = Stat)
-	FHeroStat FinalStats;
-
-	UPROPERTY(VisibleAnywhere, Category = Stat)
-	FHeroStat CurStats;
 
 	UPROPERTY(VisibleAnywhere, Category = Stat)
 	float TimeProgress;
