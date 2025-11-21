@@ -25,6 +25,7 @@
 #include "Enum/BossPhase.h"
 
 #include "Core/VMLevelManager.h"
+#include "Portal/VMFieldPortal.h"
 
 // Sets default values
 AVMEnemyBoss::AVMEnemyBoss()
@@ -250,6 +251,37 @@ void AVMEnemyBoss::HealthPointChange(float Amount, AActor* Causer)
 	if (CurrentHp < KINDA_SMALL_NUMBER)
 	{
 		OnHealthPointPercentageChanged.Broadcast(0);
+
+		UWorld* World = GetWorld();
+		if (!World) return;
+
+		FActorSpawnParameters Params;
+		Params.SpawnCollisionHandlingOverride =
+			ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+		//Spawn Level BossMap으로 한정. BossMap 없으면 퍼시스턴트 레벨에 소환
+		UVMLevelManager* LevelManager = GetGameInstance()->GetSubsystem<UVMLevelManager>();
+		if (LevelManager != nullptr)
+		{
+			ULevelStreaming* BossLevel = LevelManager->GetLevel(FName("BossMap"));
+			if (BossLevel != nullptr && BossLevel->GetLoadedLevel() != nullptr)
+			{
+				Params.OverrideLevel = BossLevel->GetLoadedLevel();
+				UE_LOG(LogTemp, Log, TEXT("Spawn location changed to BossMap"));
+			}
+			else
+			{
+				UE_LOG(LogTemp, Log, TEXT("BossLevel is nullptr"));
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("LevelManager is nullptr"));
+		}
+
+		//필드 포털 생성
+		AVMFieldPortal* SpawnedActor = World->SpawnActor<AVMFieldPortal>(AVMFieldPortal::StaticClass(), GetActorTransform(), Params);
+
 		Destroy();
 		return;
 	}

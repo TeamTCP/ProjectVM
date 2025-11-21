@@ -19,6 +19,6 @@ protected:
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TargetMap")
-	FString TargetLevelPath = "/Game/Project/Map/TestBossMap_Environment.TestBossMap_Environment";
+	FString TargetLevelPath = "/Game/Project/Map/RealBossMap.RealBossMap";
 	FName TargetLevelName = FName("BossMap"); //레벨 매니저에 저장할 키 이름
 };
