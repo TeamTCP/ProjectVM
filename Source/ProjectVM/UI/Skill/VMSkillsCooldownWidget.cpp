@@ -49,10 +49,10 @@ void UVMSkillsCooldownWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	BasicSkillCooldownProgressBar->SetPercent(1.0f);
-	AdvancedSkillCooldownProgressBar->SetPercent(1.0f);
-	MovementSkillCooldownProgressBar->SetPercent(1.0f);
-	UltimateSkillCooldownProgressBar->SetPercent(1.0f);
+	BasicSkillCooldownProgressBar->SetPercent(0.0f);
+	AdvancedSkillCooldownProgressBar->SetPercent(0.0f);
+	MovementSkillCooldownProgressBar->SetPercent(0.0f);
+	UltimateSkillCooldownProgressBar->SetPercent(0.0f);
 
 	BasicSkillCooldownText->SetText(FText::FromString(TEXT("")));
 	AdvancedSkillCooldownText->SetText(FText::FromString(TEXT("")));
