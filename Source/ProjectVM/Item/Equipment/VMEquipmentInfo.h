@@ -16,50 +16,50 @@ struct FVMEquipmentInfo : public FTableRowBase
 
 public:
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<UStaticMesh> Mesh;
+	TObjectPtr<UStaticMesh> Mesh = nullptr;
 
 	UPROPERTY(EditAnywhere)
-	UTexture2D* Icon;
+	UTexture2D* Icon = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	FString ItemName;
+	FString ItemName = TEXT("");
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	FString ItemDesc;
+	FString ItemDesc = TEXT("");
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 ItemID;
+	int32 ItemID = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 ItemLevel;
+	int32 ItemLevel = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 AttackPower;
+	int32 AttackPower = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 DefensivePower;
+	int32 DefensivePower = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 HealthPoint;
+	int32 HealthPoint = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 ManaPoint;
+	int32 ManaPoint = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 ManaRegeneration;
+	int32 ManaRegeneration = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 Speed;
+	int32 Speed = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 LifeSteal;
+	int32 LifeSteal = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	FString Ability;
+	FString Ability = TEXT("");
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 AtlasRow;
+	int32 AtlasRow = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	int32 AtlasCol;
+	int32 AtlasCol = 0;
 };
