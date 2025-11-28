@@ -182,6 +182,7 @@ void AVMPickup::TakePickup(const AVMCharacterHeroBase* Taker)
 	}
 }
 
+#if WITH_EDITOR
 void AVMPickup::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
@@ -202,6 +203,7 @@ void AVMPickup::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEve
 		}
 	}
 }
+#endif
 
 //// Called every frame
 //void AVMPickup::Tick(float DeltaTime)
