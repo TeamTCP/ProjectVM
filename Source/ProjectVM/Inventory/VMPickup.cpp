@@ -16,7 +16,6 @@ AVMPickup::AVMPickup()
 	PrimaryActorTick.bCanEverTick = false;
 
 	PickupMesh = CreateDefaultSubobject<UStaticMeshComponent>("PickupMesh");
-	//PickupMesh->SetSimulatePhysics(true);
 	SetRootComponent(PickupMesh);
 
 }
@@ -113,6 +112,7 @@ void AVMPickup::EndFocus()
 void AVMPickup::BeginPlay()
 {
 	Super::BeginPlay();
+	PickupMesh->SetSimulatePhysics(true);
 	InitializePickup(UVMEquipment::StaticClass());
 }
 

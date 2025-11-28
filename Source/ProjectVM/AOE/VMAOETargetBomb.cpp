@@ -21,7 +21,7 @@ AVMAOETargetBomb::AVMAOETargetBomb()
 	CylinderCollision->InitCapsuleSize(50.f, 40.f);
 
 	CylinderCollision->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	//CylinderCollision->SetSimulatePhysics(true);
+
 	CylinderCollision->SetEnableGravity(true);
 
 	// Mesh
@@ -39,7 +39,7 @@ AVMAOETargetBomb::AVMAOETargetBomb()
 void AVMAOETargetBomb::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	CylinderCollision->SetSimulatePhysics(true);
 	CylinderCollision->OnComponentBeginOverlap.AddDynamic(this, &AVMAOETargetBomb::OnBeginOverlap);
 }
 
