@@ -8,8 +8,6 @@
 #include "Engine/OverlapResult.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
-#include "ProjectVMCharacter.h"
-
 #include "Macro/VMAIMarco.h"
 #include "Macro/VMPhysics.h"
 

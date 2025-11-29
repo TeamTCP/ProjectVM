@@ -16,8 +16,6 @@
 
 #include "Components/CapsuleComponent.h"
 
-#include "ProjectVmCharacter.h"
-
 #include "BehaviorTree/BlackboardComponent.h"
 
 #include "Particles/ParticleSystemComponent.h"
