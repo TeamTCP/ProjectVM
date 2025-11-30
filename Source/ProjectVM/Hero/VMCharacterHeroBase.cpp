@@ -327,11 +327,10 @@ void AVMCharacterHeroBase::ApplySpeed(int32 SpeedStat)
 
 void AVMCharacterHeroBase::Die()
 {
-	UE_LOG(LogTemp, Log, TEXT("Test : Die"));
 	CurState = EHeroState::Dead;
 
 	ChangeInputMode(EInputMode::Dead);
-	GetCapsuleComponent()->SetCollisionProfileName(TEXT("NoCollision"));
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Pawn"));
 	
 	OnHeroDeath.Broadcast();
 }
