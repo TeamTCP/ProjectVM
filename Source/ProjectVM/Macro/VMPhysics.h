@@ -5,6 +5,8 @@
 #define VM_ALLY_COLLISION TEXT("VMAllyCollision")
 #define VM_HERO_COLLISION TEXT("VMHeroCollision")
 #define VM_ENEMY_COLLISION TEXT("VMEnemyCollision")
+#define VM_HERO_PROJECTILE_COLLISION TEXT("VMHeroProjectileCollision")
+#define VM_ENEMY_PROJECTILE_COLLISION TEXT("VMEnemyProjectileCollision")
 
 #define VM_HERO_TARGET_ACTION ECC_GameTraceChannel2
 #define VM_ENEMY_TARGET_ACTION ECC_GameTraceChannel3
