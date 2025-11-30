@@ -32,7 +32,7 @@
 
 #include "AI/Allies/VMAllyBase.h"
 #include "Core/VMLevelManager.h"
-
+#include "Macro/VMPhysics.h"
 
 AVMCharacterHeroBase::AVMCharacterHeroBase()
 {
@@ -41,7 +41,7 @@ AVMCharacterHeroBase::AVMCharacterHeroBase()
 	bUseControllerRotationRoll = false;
 
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-	GetCapsuleComponent()->SetCollisionProfileName(TEXT("VMHeroCollision"));
+	GetCapsuleComponent()->SetCollisionProfileName(VM_HERO_COLLISION);
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);

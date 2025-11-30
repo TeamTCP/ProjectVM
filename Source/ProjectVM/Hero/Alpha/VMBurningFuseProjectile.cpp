@@ -10,13 +10,15 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Hero/VMCharacterHeroBase.h"
 
+#include "Macro/VMPhysics.h"
+
 AVMBurningFuseProjectile::AVMBurningFuseProjectile()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
 	SphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollision"));
 	SphereCollision->SetSphereRadius(10.f);
-	SphereCollision->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
+	SphereCollision->SetCollisionProfileName(VM_HERO_PROJECTILE_COLLISION);
 	SphereCollision->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	SphereCollision->OnComponentBeginOverlap.AddDynamic(this, &AVMBurningFuseProjectile::HitTarget);
 	SphereCollision->SetEnableGravity(false);
@@ -52,11 +54,6 @@ void AVMBurningFuseProjectile::InitProjectile(AActor* InOwner, int32 InDamage)
 
 void AVMBurningFuseProjectile::HitTarget(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (Cast<AVMCharacterHeroBase>(OtherActor) != nullptr)
-	{
-		return;
-	}
-
 	IVMStatChangeable* StatChangeable = Cast<IVMStatChangeable>(OtherActor);
 	
 	if (StatChangeable)

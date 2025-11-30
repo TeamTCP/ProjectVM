@@ -13,7 +13,7 @@ AAlpha::AAlpha()
 {
 	HairMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("HairMesh"));
 	HairMesh->SetupAttachment(GetMesh());
-	HairMesh->SetCollisionProfileName(TEXT("VMHeroCollision"));
+	HairMesh->SetCollisionProfileName(TEXT("NoCollision"));
 	
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/EchoContent/Characters/Echo/Meshes/Echo.Echo'"));
 	if (CharacterMeshRef.Object)
